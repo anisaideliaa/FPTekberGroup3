@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// import 'package:pasar_tani_nelayan/Pages/TambahProduk.dart'; // Pastikan ini diimport jika digunakan di sini
 
 class TokoHomePage extends StatefulWidget {
   const TokoHomePage({super.key});
@@ -8,19 +9,57 @@ class TokoHomePage extends StatefulWidget {
 }
 
 class _TokoHomePageState extends State<TokoHomePage> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 0; // Default ke 'Produk' saat pertama kali dimuat
   List<Map<String, dynamic>> _produk = [];
 
   @override
   void initState() {
     super.initState();
-    _selectedIndex = 0;
+    // _selectedIndex sudah diinisialisasi di atas
   }
 
-  void _onItemTapped(int index) {
+  void _onItemTapped(int index) async {
+    // Ubah menjadi async jika Anda ingin menunggu pushNamed
     setState(() {
       _selectedIndex = index;
     });
+
+    switch (index) {
+      case 0: // Produk
+        // Jika sudah di tab produk, tidak perlu navigasi ekstra,
+        // hanya pastikan body menampilkan produk.
+        // Jika ini bukan halaman produk utama, Anda bisa menavigasi ke sana.
+        break;
+      case 1: // Kelola
+        // Contoh: await Navigator.pushNamed(context, '/kelola_page');
+        print('Navigasi ke Kelola');
+        break;
+      case 2: // Barter
+        // Contoh: await Navigator.pushNamed(context, '/barter_page');
+        print('Navigasi ke Barter');
+        break;
+      case 3: // Pesanan
+        // Contoh: await Navigator.pushNamed(context, '/pesanan_page');
+        print('Navigasi ke Pesanan');
+        break;
+      case 4: // Profil
+        // --- Bagian PENTING: Menangkap hasil kembali dari BusinessProfilePage ---
+        final returnedIndex =
+            await Navigator.pushNamed(context, '/profil_usaha');
+        if (returnedIndex != null && returnedIndex is int) {
+          // Jika BusinessProfilePage mengembalikan index, set _selectedIndex sesuai itu
+          setState(() {
+            _selectedIndex = returnedIndex;
+          });
+        }
+        // Jika tidak ada index yang dikembalikan, atau jika tidak kembali dari profil,
+        // _selectedIndex akan tetap pada index 4 (Profil) atau yang terakhir.
+        // Anda mungkin ingin secara eksplisit mengaturnya kembali ke 0 jika ini yang diinginkan:
+        // setState(() {
+        //   _selectedIndex = 0; // Kembali ke produk setelah selesai dari profil
+        // });
+        break;
+    }
   }
 
   @override
@@ -32,7 +71,8 @@ class _TokoHomePageState extends State<TokoHomePage> {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () async {
-              final result = await Navigator.pushNamed(context, '/tambah_produk');
+              final result =
+                  await Navigator.pushNamed(context, '/tambah_produk');
               if (result != null && result is Map<String, dynamic>) {
                 setState(() {
                   _produk.add(result);
@@ -75,6 +115,9 @@ class _TokoHomePageState extends State<TokoHomePage> {
   }
 
   Widget _buildBody() {
+    // Konten body ini akan tetap terpampang di bawah App/Bottom Bar.
+    // Jika Anda ingin mengubah konten body berdasarkan _selectedIndex,
+    // Anda perlu membuat daftar widget untuk setiap tab di sini.
     if (_produk.isEmpty) {
       return Center(
         child: Column(
@@ -86,7 +129,8 @@ class _TokoHomePageState extends State<TokoHomePage> {
             ),
             ElevatedButton(
               onPressed: () async {
-                final result = await Navigator.pushNamed(context, '/tambah_produk');
+                final result =
+                    await Navigator.pushNamed(context, '/tambah_produk');
                 if (result != null && result is Map<String, dynamic>) {
                   setState(() {
                     _produk.add(result);
@@ -104,8 +148,8 @@ class _TokoHomePageState extends State<TokoHomePage> {
         itemBuilder: (context, index) {
           final product = _produk[index];
           return ListTile(
-            title: Text(product['nama'] ?? ''), // Gunakan null safety operator ??
-            subtitle: Text(product['deskripsi'] ?? ''), // Gunakan null safety operator ??
+            title: Text(product['nama'] ?? ''),
+            subtitle: Text(product['deskripsi'] ?? ''),
             // ... tampilkan data produk lainnya
           );
         },

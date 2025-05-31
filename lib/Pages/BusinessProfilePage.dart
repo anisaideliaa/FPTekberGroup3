@@ -1,12 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:pasar_tani_nelayan/Pages/EditProfile.dart'; // <--- Import EditProfilePage
 
-class BusinessProfilePage extends StatelessWidget {
+class BusinessProfilePage extends StatefulWidget {
   const BusinessProfilePage({Key? key}) : super(key: key);
+
+  @override
+  State<BusinessProfilePage> createState() => _BusinessProfilePageState();
+}
+
+class _BusinessProfilePageState extends State<BusinessProfilePage> {
+  int _selectedIndex = 4; // Tetap 4, karena ini adalah halaman profil
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = 4;
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    switch (index) {
+      case 0: // Produk (Shopping Cart Icon)
+        Navigator.pop(context, 0); // Mengembalikan 0 (indeks tab Produk)
+        break;
+      case 1: // Kelola
+        print('Navigasi ke Kelola');
+        // Contoh: Navigator.pushNamed(context, '/kelola_page');
+        break;
+      case 2: // Barter
+        print('Navigasi ke Barter');
+        // Contoh: Navigator.pushNamed(context, '/barter_page');
+        break;
+      case 3: // Pesanan
+        print('Navigasi ke Pesanan');
+        // Contoh: Navigator.pushNamed(context, '/pesanan_page');
+        break;
+      case 4: // Profil (Anda sudah berada di halaman ini)
+        print('Anda sudah di halaman Profil');
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8E1), // Light yellow background
+      backgroundColor: const Color(0xFFFFF8E1),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -20,8 +61,7 @@ class BusinessProfilePage extends StatelessWidget {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings,
-                color: Color(0xFF8BC34A)), // Green settings icon
+            icon: const Icon(Icons.settings, color: Color(0xFF8BC34A)),
             onPressed: () {
               // TODO: Handle settings icon tap
             },
@@ -32,7 +72,6 @@ class BusinessProfilePage extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            // Logo Section
             Center(
               child: Container(
                 width: 150,
@@ -40,25 +79,12 @@ class BusinessProfilePage extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.grey.shade300, width: 2),
-                  color: Colors
-                      .white, // Or a very light grey if the image has a background
+                  color: Colors.white,
                   image: const DecorationImage(
-                    image: AssetImage(
-                        'assets/pasartani_logo.png'), // Replace with your logo path
+                    image: AssetImage('assets/pasartani_logo.png'),
                     fit: BoxFit.contain,
                   ),
                 ),
-                // If you don't have the exact logo image, you can use a placeholder or text
-                // child: Center(
-                //   child: Text(
-                //     'PASAR TANI',
-                //     style: TextStyle(
-                //       fontSize: 24,
-                //       fontWeight: FontWeight.bold,
-                //       color: Color(0xFF8BC34A),
-                //     ),
-                //   ),
-                // ),
               ),
             ),
             const SizedBox(height: 20),
@@ -72,19 +98,66 @@ class BusinessProfilePage extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 30),
-            _buildProfileOption(context, 'Informasi Akun'),
-            _buildProfileOption(context, 'Identitas Pemilik'),
-            _buildProfileOption(context, 'Informasi Rekening'),
-            _buildProfileOption(context, 'Informasi Toko'),
-            _buildProfileOption(context, 'Komunitas Tani'),
+            // --- Modifikasi _buildProfileOption di sini ---
+            _buildProfileOption(context, 'Informasi Akun', () {
+              Navigator.pushNamed(
+                  context, '/edit_profile'); // Navigasi ke EditProfilePage
+            }),
+            _buildProfileOption(context, 'Identitas Pemilik', () {
+              print('Tapped on Identitas Pemilik');
+              // Tambahkan navigasi ke halaman Identitas Pemilik
+            }),
+            _buildProfileOption(context, 'Informasi Rekening', () {
+              print('Tapped on Informasi Rekening');
+              // Tambahkan navigasi ke halaman Informasi Rekening
+            }),
+            _buildProfileOption(context, 'Informasi Toko', () {
+              print('Tapped on Informasi Toko');
+              // Tambahkan navigasi ke halaman Informasi Toko
+            }),
+            _buildProfileOption(context, 'Komunitas Tani', () {
+              print('Tapped on Komunitas Tani');
+              // Tambahkan navigasi ke halaman Komunitas Tani
+            }),
+            // --- Akhir Modifikasi ---
             const SizedBox(height: 20),
           ],
         ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Produk',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.store),
+            label: 'Kelola',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.swap_horiz),
+            label: 'Barter',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.assignment),
+            label: 'Pesanan',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profil',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.green,
+        unselectedItemColor: Colors.grey,
+        onTap: _onItemTapped,
+      ),
     );
   }
 
-  Widget _buildProfileOption(BuildContext context, String title) {
+  // Modifikasi _buildProfileOption untuk menerima onTap Callback
+  Widget _buildProfileOption(
+      BuildContext context, String title, VoidCallback onTapAction) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
@@ -95,21 +168,14 @@ class BusinessProfilePage extends StatelessWidget {
             color: Colors.grey.withOpacity(0.2),
             spreadRadius: 1,
             blurRadius: 3,
-            offset: const Offset(0, 2), // changes position of shadow
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {
-            // TODO: Implement navigation for each option
-            print('Tapped on $title');
-            // Example navigation:
-            // if (title == 'Informasi Akun') {
-            //   Navigator.push(context, MaterialPageRoute(builder: (context) => AccountInfoPage()));
-            // }
-          },
+          onTap: onTapAction, // Gunakan onTapAction yang diterima
           borderRadius: BorderRadius.circular(10),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
@@ -136,28 +202,3 @@ class BusinessProfilePage extends StatelessWidget {
     );
   }
 }
-
-// To run this code, you'll need to set up a basic Flutter app.
-// Here's how you might integrate it into your main.dart:
-
-// import 'package:flutter/material.dart';
-// import 'package:your_app_name/business_profile_page.dart'; // Assuming you save the above code in business_profile_page.dart
-
-// void main() {
-//   runApp(const MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   const MyApp({Key? key}) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Pasar Tani App',
-//       theme: ThemeData(
-//         primarySwatch: Colors.green,
-//       ),
-//       home: const BusinessProfilePage(),
-//     );
-//   }
-// }
