@@ -61,7 +61,7 @@ class _BusinessProfilePageState extends State<BusinessProfilePage> {
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings, color: Color(0xFF8BC34A)),
+            icon: const Icon(Icons.settings, color: Color(0xFF5A6543)),
             onPressed: () {
               // TODO: Handle settings icon tap
             },
@@ -81,7 +81,7 @@ class _BusinessProfilePageState extends State<BusinessProfilePage> {
                   border: Border.all(color: Colors.grey.shade300, width: 2),
                   color: Colors.white,
                   image: const DecorationImage(
-                    image: AssetImage('assets/pasartani_logo.png'),
+                    image: AssetImage('assets/LogoPasarTani.png'),
                     fit: BoxFit.contain,
                   ),
                 ),

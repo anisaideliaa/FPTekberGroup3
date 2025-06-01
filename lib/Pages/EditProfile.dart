@@ -34,8 +34,7 @@ class EditProfilePage extends StatelessWidget {
                 children: [
                   const CircleAvatar(
                     radius: 70,
-                    backgroundImage:
-                        AssetImage('assets/profile_placeholder.jpg'),
+                    backgroundImage: AssetImage('assets/LogoPasarTani.png'),
                     backgroundColor: Colors.grey,
                   ),
                   Positioned(
@@ -44,7 +43,7 @@ class EditProfilePage extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.yellow,
+                        color: Color(0xFF5A6543),
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 2),
                       ),
@@ -103,7 +102,7 @@ class EditProfilePage extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.yellow,
+                  backgroundColor: Color(0xFF5A6543),
                   foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
