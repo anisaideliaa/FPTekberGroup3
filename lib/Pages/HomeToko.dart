@@ -59,7 +59,8 @@ class _TokoHomePageState extends State<TokoHomePage> {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () async {
-              final result = await Navigator.pushNamed(context, '/tambah_produk');
+              final result =
+                  await Navigator.pushNamed(context, '/tambah_produk');
               if (result != null && result is Map<String, dynamic>) {
                 setState(() {
                   _produk.add(result);
@@ -72,12 +73,17 @@ class _TokoHomePageState extends State<TokoHomePage> {
       body: _buildBody(),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Produk'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart), label: 'Produk'),
           BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Kelola'),
-          BottomNavigationBarItem(icon: Icon(Icons.swap_horiz), label: 'Barter'),
-          BottomNavigationBarItem(icon: Icon(Icons.assignment), label: 'Pesanan'),
-          BottomNavigationBarItem(icon: Icon(Icons.business), label: 'Profil Usaha'),
-          BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: 'Profil User'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.swap_horiz), label: 'Barter'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.assignment), label: 'Pesanan'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.business), label: 'Profil Usaha'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.account_circle), label: 'Profil User'),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Riwayat'),
         ],
         currentIndex: _selectedIndex,
@@ -102,7 +108,8 @@ class _TokoHomePageState extends State<TokoHomePage> {
             const SizedBox(height: 12),
             ElevatedButton(
               onPressed: () async {
-                final result = await Navigator.pushNamed(context, '/tambah_produk');
+                final result =
+                    await Navigator.pushNamed(context, '/tambah_produk');
                 if (result != null && result is Map<String, dynamic>) {
                   setState(() {
                     _produk.add(result);
