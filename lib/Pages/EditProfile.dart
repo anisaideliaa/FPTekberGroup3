@@ -34,7 +34,8 @@ class EditProfilePage extends StatelessWidget {
                 children: [
                   const CircleAvatar(
                     radius: 70,
-                    backgroundImage: AssetImage('assets/LogoPasarTani.png'),
+                    backgroundImage:
+                        AssetImage('assets/MUHAMMADYUSUFPURNAMA.jpeg'),
                     backgroundColor: Colors.grey,
                   ),
                   Positioned(
@@ -61,7 +62,7 @@ class EditProfilePage extends StatelessWidget {
             _buildTextField(
               icon: Icons.person_outline,
               labelText: 'Full Name',
-              initialValue: 'John Doe',
+              initialValue: 'Muhammad Yusuf Purnama',
             ),
             const SizedBox(height: 20),
             _buildTextField(
@@ -74,7 +75,7 @@ class EditProfilePage extends StatelessWidget {
               icon: Icons.mail_outline,
               labelText: 'E-Mail',
               keyboardType: TextInputType.emailAddress,
-              initialValue: 'johndoe@example.com',
+              initialValue: 'myusuffpp@gmail.com',
             ),
             const SizedBox(height: 20),
             _buildTextField(
@@ -112,7 +113,7 @@ class EditProfilePage extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                child: const Text('Edit Profile'),
+                child: const Text('Simpan Profile'),
               ),
             ),
             const SizedBox(height: 30),
