@@ -10,13 +10,13 @@ import 'package:pasar_tani_nelayan/Pages/AlamatPengguna.dart';
 import 'package:pasar_tani_nelayan/Pages/InformasiBank.dart';
 import 'package:pasar_tani_nelayan/Pages/GantiPassword.dart';
 import 'package:pasar_tani_nelayan/Pages/EditProfilUser.dart';
-<<<<<<< HEAD
 import 'package:pasar_tani_nelayan/Pages/ScreenProfileUsaha.dart';
+import 'package:pasar_tani_nelayan/Pages/IdentitasPemilikPage.dart';
 import 'package:pasar_tani_nelayan/Pages/InformasiAkunUsaha.dart';
-=======
+import 'package:pasar_tani_nelayan/Pages/InformasiToko.dart';
 import 'package:pasar_tani_nelayan/Pages/LoginPage.dart';
 import 'package:pasar_tani_nelayan/Pages/RegisterPage.dart';
->>>>>>> f14bd417ade3634dd239df7773aef0bf8ed26379
+import 'package:pasar_tani_nelayan/Pages/InformasiRekening.dart';
 
 void main() {
   runApp(const MyApp());
@@ -51,13 +51,13 @@ class MyApp extends StatelessWidget {
         '/informasi_bank': (context) => const InformasiBankPage(),
         '/ganti_password': (context) => const GantiPasswordPage(),
         '/edit_profil_user': (context) => const EditProfilUserPage(),
-<<<<<<< HEAD
         '/navigasi_profile_usaha': (context) => const ScreenProfileUsaha(),
         '/profil_usaha': (context) => const InformasiAkunUsahaPage(),
-=======
+        '/identitas_pemilik': (context) => const IdentitasPemilikPage(),
+        '/informasi_rekening': (context) => const InformasiRekeningPage(),
+        '/informasi_toko': (context) => const InformasiTokoPage(),
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
->>>>>>> f14bd417ade3634dd239df7773aef0bf8ed26379
       },
     );
   }

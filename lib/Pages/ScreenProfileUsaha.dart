@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pasar_tani_nelayan/Pages/LoginPage.dart';
 
 class ScreenProfileUsaha extends StatelessWidget {
   const ScreenProfileUsaha({super.key});
@@ -27,11 +28,8 @@ class ScreenProfileUsaha extends StatelessWidget {
             icon: const Icon(Icons.settings,
                 color: Color(0xFF5D844A), size: 30), // Icon gerigi
             onPressed: () {
-              // Aksi ketika icon gerigi ditekan
-              // Contoh: Navigator.pushNamed(context, '/settings_page');
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Pengaturan ditekan!')),
-              );
+              _showLogoutConfirmationDialog(
+                  context); // Panggil fungsi notifikasi logout
             },
           ),
         ],
@@ -72,25 +70,30 @@ class ScreenProfileUsaha extends StatelessWidget {
             ),
             const SizedBox(height: 30),
             // Daftar Pilihan Informasi
-            _buildInfoCard(context, 'Informasi Akun', '/informasi_akun'),
-            _buildInfoCard(context, 'Identitas Pemilik',
-                '/navigasi_profil_user'), // Ini mungkin mengarah ke BusinessProfilePage
-            _buildInfoCard(context, 'Informasi Rekening', '/informasi_bank'),
-            _buildInfoCard(context, 'Informasi Toko',
-                '/edit_profile'), // Ini mungkin mengarah ke EditProfile
-            _buildInfoCard(context, 'Komunitas Tani',
-                '/komunitas_tani'), // Anda perlu menambahkan rute ini
-            const SizedBox(height: 30), // Spasi di bagian bawah
+            _buildInfoCard(context, 'Informasi Akun', '/profil_usaha'),
+            _buildInfoCard(context, 'Identitas Pemilik', '/identitas_pemilik'),
+            _buildInfoCard(
+                context, 'Informasi Rekening', '/informasi_rekening'),
+            _buildInfoCard(context, 'Informasi Toko', '/informasi_toko'),
+            _buildInfoCard(
+              context,
+              'Komunitas Tani',
+              null,
+              onTapCustom: () {
+                _showKomunitasTaniNotification(context);
+              },
+            ),
+            const SizedBox(height: 30),
           ],
         ),
       ),
-      bottomNavigationBar:
-          _buildBottomNavigationBar(context), // Meneruskan context
+      bottomNavigationBar: _buildBottomNavigationBar(context),
     );
   }
 
   // Widget pembantu untuk membuat kartu informasi
-  Widget _buildInfoCard(BuildContext context, String title, String? routeName) {
+  Widget _buildInfoCard(BuildContext context, String title, String? routeName,
+      {VoidCallback? onTapCustom}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       decoration: BoxDecoration(
@@ -111,7 +114,9 @@ class ScreenProfileUsaha extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
           onTap: () {
-            if (routeName != null) {
+            if (onTapCustom != null) {
+              onTapCustom();
+            } else if (routeName != null) {
               Navigator.pushNamed(context, routeName);
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -178,7 +183,7 @@ class ScreenProfileUsaha extends StatelessWidget {
         ),
       ],
       onTap: (index) {
-        // Handle navigasi di sini menggunakan named routes
+        // Handle navigasi di sini
         switch (index) {
           case 0:
             Navigator.pushNamed(
@@ -189,7 +194,6 @@ class ScreenProfileUsaha extends StatelessWidget {
                 context, '/tambah_produk'); // Kelola -> Tambah Produk
             break;
           case 2:
-            // Rute untuk Barter, Anda perlu menambahkannya jika belum ada
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Navigasi ke halaman Barter')),
             );
@@ -202,6 +206,158 @@ class ScreenProfileUsaha extends StatelessWidget {
             // Sudah di halaman profil, tidak perlu navigasi ulang
             break;
         }
+      },
+    );
+  }
+
+  // Fungsi untuk menampilkan notifikasi Komunitas Tani
+  void _showKomunitasTaniNotification(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext dialogContext) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFF5D844A),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  spreadRadius: 5,
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Link group whatsapp komunitas tani berhasil terkirim, apabila belum mendapatkan link grup whatsapp, klik tombol dibawah ini!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content:
+                              Text('Membuka Link Komunitas Tani (WhatsApp)')),
+                    );
+                    Navigator.of(dialogContext).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 25, vertical: 12),
+                  ),
+                  child: const Text(
+                    'Link Komunitas Tani',
+                    style: TextStyle(
+                      color: Color(0xFF5D844A),
+                      fontFamily: 'Poppins',
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Fungsi baru untuk menampilkan dialog konfirmasi logout
+  void _showLogoutConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true, // Bisa dismiss dengan tap di luar dialog
+      builder: (BuildContext dialogContext) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color(0xFF5D844A), // Warna hijau gelap
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  spreadRadius: 5,
+                  blurRadius: 15,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'ingin logout?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop(); // Tutup dialog
+                    // Navigasi ke halaman login dan hapus semua rute sebelumnya
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const LoginPage()),
+                      (Route<dynamic> route) => false,
+                    );
+                    // Atau jika menggunakan named routes:
+                    // Navigator.pushNamedAndRemoveUntil(
+                    //   context,
+                    //   '/login',
+                    //   (Route<dynamic> route) => false,
+                    // );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white, // Warna tombol putih
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 12),
+                  ),
+                  child: const Text(
+                    'Logout',
+                    style: TextStyle(
+                      color: Color(0xFF5D844A), // Warna teks tombol hijau
+                      fontFamily: 'Poppins',
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
       },
     );
   }
