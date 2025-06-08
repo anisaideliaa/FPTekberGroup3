@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import 'package:pasar_tani_nelayan/Pages/TambahProduk.dart'; // Pastikan ini diimport jika digunakan di sini
 
 class TokoHomePage extends StatefulWidget {
   const TokoHomePage({super.key});
@@ -9,55 +8,44 @@ class TokoHomePage extends StatefulWidget {
 }
 
 class _TokoHomePageState extends State<TokoHomePage> {
-  int _selectedIndex = 0; // Default ke 'Produk' saat pertama kali dimuat
+  int _selectedIndex = 0;
   List<Map<String, dynamic>> _produk = [];
 
-  @override
-  void initState() {
-    super.initState();
-    // _selectedIndex sudah diinisialisasi di atas
-  }
-
   void _onItemTapped(int index) async {
-    // Ubah menjadi async jika Anda ingin menunggu pushNamed
     setState(() {
       _selectedIndex = index;
     });
 
     switch (index) {
-      case 0: // Produk
-        // Jika sudah di tab produk, tidak perlu navigasi ekstra,
-        // hanya pastikan body menampilkan produk.
-        // Jika ini bukan halaman produk utama, Anda bisa menavigasi ke sana.
+      case 0:
+        // Produk - tidak perlu navigasi, tetap di sini
         break;
-      case 1: // Kelola
-        // Contoh: await Navigator.pushNamed(context, '/kelola_page');
+      case 1:
+        // Kelola
         print('Navigasi ke Kelola');
         break;
-      case 2: // Barter
-        // Contoh: await Navigator.pushNamed(context, '/barter_page');
+      case 2:
+        // Barter
         print('Navigasi ke Barter');
         break;
-      case 3: // Pesanan
-        // Contoh: await Navigator.pushNamed(context, '/pesanan_page');
+      case 3:
+        // Pesanan
         print('Navigasi ke Pesanan');
         break;
-      case 4: // Profil
-        // --- Bagian PENTING: Menangkap hasil kembali dari BusinessProfilePage ---
-        final returnedIndex =
-            await Navigator.pushNamed(context, '/profil_usaha');
-        if (returnedIndex != null && returnedIndex is int) {
-          // Jika BusinessProfilePage mengembalikan index, set _selectedIndex sesuai itu
-          setState(() {
-            _selectedIndex = returnedIndex;
-          });
-        }
-        // Jika tidak ada index yang dikembalikan, atau jika tidak kembali dari profil,
-        // _selectedIndex akan tetap pada index 4 (Profil) atau yang terakhir.
-        // Anda mungkin ingin secara eksplisit mengaturnya kembali ke 0 jika ini yang diinginkan:
-        // setState(() {
-        //   _selectedIndex = 0; // Kembali ke produk setelah selesai dari profil
-        // });
+      case 4:
+        // Profil Usaha
+        await Navigator.pushNamed(context, '/profil_usaha');
+        setState(() => _selectedIndex = 0);
+        break;
+      case 5:
+        // Profil User
+        await Navigator.pushNamed(context, '/profil_user');
+        setState(() => _selectedIndex = 0);
+        break;
+      case 6:
+        // Riwayat Pesanan
+        await Navigator.pushNamed(context, '/riwayat_pesanan');
+        setState(() => _selectedIndex = 0);
         break;
     }
   }
@@ -82,42 +70,32 @@ class _TokoHomePageState extends State<TokoHomePage> {
           ),
         ],
       ),
-      body: _buildBody(), // Panggil fungsi _buildBody() untuk memisahkan logika
+      body: _buildBody(),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Produk',
-          ),
+              icon: Icon(Icons.shopping_cart), label: 'Produk'),
+          BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Kelola'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.store),
-            label: 'Kelola',
-          ),
+              icon: Icon(Icons.swap_horiz), label: 'Barter'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.swap_horiz),
-            label: 'Barter',
-          ),
+              icon: Icon(Icons.assignment), label: 'Pesanan'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
-            label: 'Pesanan',
-          ),
+              icon: Icon(Icons.business), label: 'Profil Usaha'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profil',
-          ),
+              icon: Icon(Icons.account_circle), label: 'Profil User'),
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'Riwayat'),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.green,
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
+        type: BottomNavigationBarType.fixed,
       ),
     );
   }
 
   Widget _buildBody() {
-    // Konten body ini akan tetap terpampang di bawah App/Bottom Bar.
-    // Jika Anda ingin mengubah konten body berdasarkan _selectedIndex,
-    // Anda perlu membuat daftar widget untuk setiap tab di sini.
     if (_produk.isEmpty) {
       return Center(
         child: Column(
@@ -127,6 +105,7 @@ class _TokoHomePageState extends State<TokoHomePage> {
               'Produk Masih Kosong',
               style: TextStyle(fontSize: 20),
             ),
+            const SizedBox(height: 12),
             ElevatedButton(
               onPressed: () async {
                 final result =
@@ -137,6 +116,15 @@ class _TokoHomePageState extends State<TokoHomePage> {
                   });
                 }
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.deepPurple,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: const BorderSide(color: Colors.deepPurple),
+                ),
+              ),
               child: const Text('Tambahkan Produk'),
             ),
           ],
@@ -150,7 +138,6 @@ class _TokoHomePageState extends State<TokoHomePage> {
           return ListTile(
             title: Text(product['nama'] ?? ''),
             subtitle: Text(product['deskripsi'] ?? ''),
-            // ... tampilkan data produk lainnya
           );
         },
       );
