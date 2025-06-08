@@ -10,6 +10,8 @@ import 'package:pasar_tani_nelayan/Pages/AlamatPengguna.dart';
 import 'package:pasar_tani_nelayan/Pages/InformasiBank.dart';
 import 'package:pasar_tani_nelayan/Pages/GantiPassword.dart';
 import 'package:pasar_tani_nelayan/Pages/EditProfilUser.dart';
+import 'package:pasar_tani_nelayan/Pages/LoginPage.dart';
+import 'package:pasar_tani_nelayan/Pages/RegisterPage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,7 +34,8 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => const TokoHomePage(),
+        '/': (context) => const LoginPage(),
+        'homepage': (context) => const TokoHomePage(),
         '/tambah_produk': (context) => const TambahProduk(),
         '/profil_usaha': (context) => const BusinessProfilePage(),
         '/edit_profile': (context) => const EditProfilePage(),
@@ -43,6 +46,8 @@ class MyApp extends StatelessWidget {
         '/informasi_bank': (context) => const InformasiBankPage(),
         '/ganti_password': (context) => const GantiPasswordPage(),
         '/edit_profil_user': (context) => const EditProfilUserPage(),
+        '/login': (context) => const LoginPage(),
+        '/register': (context) => const RegisterPage(),
       },
     );
   }
