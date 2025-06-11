@@ -45,7 +45,9 @@ class LoginPage extends StatelessWidget {
                     child: const Text('Lupa Kata Sandi', style: TextStyle(color: Colors.black87)),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/toko_homepage');
+                    },
                     child: const Text('Masuk Sebagai Toko', style: TextStyle(color: Colors.black87)),
                   ),
                 ],

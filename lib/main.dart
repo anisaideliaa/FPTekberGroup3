@@ -12,6 +12,7 @@ import 'package:pasar_tani_nelayan/Pages/GantiPassword.dart';
 import 'package:pasar_tani_nelayan/Pages/EditProfilUser.dart';
 import 'package:pasar_tani_nelayan/Pages/LoginPage.dart';
 import 'package:pasar_tani_nelayan/Pages/RegisterPage.dart';
+import 'package:pasar_tani_nelayan/Pages/Homepage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,7 +36,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const LoginPage(),
-        'homepage': (context) => const TokoHomePage(),
+        'homepage': (context) => HomePage(),
         '/tambah_produk': (context) => const TambahProduk(),
         '/profil_usaha': (context) => const BusinessProfilePage(),
         '/edit_profile': (context) => const EditProfilePage(),
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
         '/edit_profil_user': (context) => const EditProfilUserPage(),
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
+        '/toko_homepage': (context) => const TokoHomePage(),
       },
     );
   }
