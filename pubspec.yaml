@@ -65,6 +65,7 @@ flutter:
     # Jika Anda ingin lebih spesifik untuk gambar, Anda bisa:
     # - assets/images/logo_pasar_tani.png
     # Namun, '- assets/' sudah mencakup subfolder seperti 'images/'.
+    - assets/dummy_map.jpg
 
   fonts:
     - family: Poppins
