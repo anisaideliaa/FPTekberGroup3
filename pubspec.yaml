@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.6.1
+  sdk: '>=3.6.1 <4.0.0' # Mengubah batas atas SDK agar lebih fleksibel untuk versi Dart mendatang, disarankan oleh Flutter.
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -34,6 +34,9 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  
+  # Penambahan package intl untuk memformat tanggal
+  intl: ^0.19.0 # Gunakan versi terbaru yang stabil dari pub.dev jika ada
 
 dev_dependencies:
   flutter_test:
@@ -58,64 +61,70 @@ flutter:
   uses-material-design: true
   
   assets:
-      - assets/
+    - assets/ # Deklarasi ini akan menyertakan semua file di dalam folder 'assets/'
+    # Jika Anda ingin lebih spesifik untuk gambar, Anda bisa:
+    # - assets/images/logo_pasar_tani.png
+    # Namun, '- assets/' sudah mencakup subfolder seperti 'images/'.
+
   fonts:
-      - family: Poppins
-        fonts:
-          - asset: fonts/Poppins-Black.ttf
-          - asset: fonts/Poppins-BlackItalic.ttf
-            style: italic
-          - asset: fonts/Poppins-Bold.ttf
-          - asset: fonts/Poppins-BoldItalic.ttf
-            style: italic
-          - asset: fonts/Poppins-ExtraBold.ttf
-          - asset: fonts/Poppins-ExtraBoldItalic.ttf
-            style: italic
-          - asset: fonts/Poppins-ExtraLight.ttf
-          - asset: fonts/Poppins-ExtraLight.ttf
-            style: italic
-          - asset: fonts/Poppins-Italic.ttf
-          - asset: fonts/Poppins-Light.ttf
-          - asset: fonts/Poppins-LightItalic.ttf
-            style: italic
-          - asset: fonts/Poppins-Medium.ttf
-          - asset: fonts/Poppins-MediumItalic.ttf
-            style: italic
-          - asset: fonts/Poppins-Regular.ttf
-          - asset: fonts/Poppins-SemiBold.ttf
-          - asset: fonts/Poppins-SemiBoldItalic.ttf
-            style: italic
-          - asset: fonts/Poppins-Thin.ttf
-          - asset: fonts/Poppins-ThinItalic.ttf
-            style: italic
-      - family: Inter
-        fonts:
-          - asset: fonts/Inter-Black.ttf
-          - asset: fonts/Inter-BlackItalic.ttf
-            style: italic
-          - asset: fonts/Inter-Bold.ttf
-          - asset: fonts/Inter-BoldItalic.ttf
-            style: italic
-          - asset: fonts/Inter-ExtraBold.ttf
-          - asset: fonts/Inter-ExtraBoldItalic.ttf
-            style: italic
-          - asset: fonts/Inter-ExtraLight.ttf
-          - asset: fonts/Inter-ExtraLight.ttf
-            style: italic
-          - asset: fonts/Inter-Italic.ttf
-          - asset: fonts/Inter-Light.ttf
-          - asset: fonts/Inter-LightItalic.ttf
-            style: italic
-          - asset: fonts/Inter-Medium.ttf
-          - asset: fonts/Inter-MediumItalic.ttf
-            style: italic
-          - asset: fonts/Inter-Regular.ttf
-          - asset: fonts/Inter-SemiBold.ttf
-          - asset: fonts/Inter-SemiBoldItalic.ttf
-            style: italic
-          - asset: fonts/Inter-Thin.ttf
-          - asset: fonts/Inter-ThinItalic.ttf
-            style: italic
+    - family: Poppins
+      fonts:
+        - asset: fonts/Poppins-Black.ttf
+        - asset: fonts/Poppins-BlackItalic.ttf
+          style: italic
+        - asset: fonts/Poppins-Bold.ttf
+        - asset: fonts/Poppins-BoldItalic.ttf
+          style: italic
+        - asset: fonts/Poppins-ExtraBold.ttf
+        - asset: fonts/Poppins-ExtraBoldItalic.ttf
+          style: italic
+        - asset: fonts/Poppins-ExtraLight.ttf
+        - asset: fonts/Poppins-ExtraLight.ttf
+          style: italic
+        - asset: fonts/Poppins-Italic.ttf
+          style: italic # Tambahkan style italic jika ini memang versi italic
+        - asset: fonts/Poppins-Light.ttf
+        - asset: fonts/Poppins-LightItalic.ttf
+          style: italic
+        - asset: fonts/Poppins-Medium.ttf
+        - asset: fonts/Poppins-MediumItalic.ttf
+          style: italic
+        - asset: fonts/Poppins-Regular.ttf
+        - asset: fonts/Poppins-SemiBold.ttf
+        - asset: fonts/Poppins-SemiBoldItalic.ttf
+          style: italic
+        - asset: fonts/Poppins-Thin.ttf
+        - asset: fonts/Poppins-ThinItalic.ttf
+          style: italic
+    - family: Inter
+      fonts:
+        - asset: fonts/Inter-Black.ttf
+        - asset: fonts/Inter-BlackItalic.ttf
+          style: italic
+        - asset: fonts/Inter-Bold.ttf
+        - asset: fonts/Inter-BoldItalic.ttf
+          style: italic
+        - asset: fonts/Inter-ExtraBold.ttf
+        - asset: fonts/Inter-ExtraBoldItalic.ttf
+          style: italic
+        - asset: fonts/Inter-ExtraLight.ttf
+        - asset: fonts/Inter-ExtraLight.ttf
+          style: italic
+        - asset: fonts/Inter-Italic.ttf
+          style: italic # Tambahkan style italic jika ini memang versi italic
+        - asset: fonts/Inter-Light.ttf
+        - asset: fonts/Inter-LightItalic.ttf
+          style: italic
+        - asset: fonts/Inter-Medium.ttf
+        - asset: fonts/Inter-MediumItalic.ttf
+          style: italic
+        - asset: fonts/Inter-Regular.ttf
+        - asset: fonts/Inter-SemiBold.ttf
+        - asset: fonts/Inter-SemiBoldItalic.ttf
+          style: italic
+        - asset: fonts/Inter-Thin.ttf
+        - asset: fonts/Inter-ThinItalic.ttf
+          style: italic
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
