@@ -15,43 +15,82 @@ class ProductCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 2,
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Product image (replace with Image.network if you have URLs)
+      child: Container(
+        margin: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.green.shade200),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Label kategori
+            if (product.category != null && product.category!.isNotEmpty)
               Container(
-                height: 100,
-                width: double.infinity,
+                margin: const EdgeInsets.only(top: 8, left: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.green[50],
+                  color: Colors.green[200],
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Center(
-                  child: Text(
-                    product.image, // Or use Image.asset/product.imageUrl
-                    style: TextStyle(fontSize: 40),
+                child: Text(
+                  product.category!,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
                   ),
                 ),
               ),
-              SizedBox(height: 8),
-              Text(
+            // Gambar produk
+            Expanded(
+              child: Center(
+                child: product.image.startsWith('assets/')
+                    ? Image.asset(product.image,
+                        fit: BoxFit.contain, height: 60)
+                    : Text(product.image, style: const TextStyle(fontSize: 40)),
+              ),
+            ),
+            // Nama produk
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              child: Text(
                 product.name,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            // Harga produk
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                product.price,
+                style: const TextStyle(
+                  color: Colors.green,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+            // Nama toko
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Text(
+                product.seller ?? "CV. Maju Jaya Hasil Tani, Blok M",
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: Colors.black54,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
-              SizedBox(height: 4),
-              Text(
-                product.price,
-                style: TextStyle(color: Colors.green[700], fontSize: 14),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

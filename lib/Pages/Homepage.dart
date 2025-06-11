@@ -160,10 +160,10 @@ class _HomePageState extends State<HomePage> {
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.75,
-                  crossAxisSpacing: 12,
+                  crossAxisCount: 3, // 3 kolom seperti di Figma
                   mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 0.62, // Sesuaikan agar proporsional
                 ),
                 itemCount: products.length,
                 itemBuilder: (context, index) {

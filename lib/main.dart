@@ -16,11 +16,8 @@ import 'package:pasar_tani_nelayan/Pages/InformasiAkunUsaha.dart';
 import 'package:pasar_tani_nelayan/Pages/InformasiToko.dart';
 import 'package:pasar_tani_nelayan/Pages/LoginPage.dart';
 import 'package:pasar_tani_nelayan/Pages/RegisterPage.dart';
-<<<<<<< HEAD
 import 'package:pasar_tani_nelayan/Pages/Homepage.dart';
-=======
 import 'package:pasar_tani_nelayan/Pages/InformasiRekening.dart';
->>>>>>> 0111870071042a0476cd2072506f964ee4e84ca6
 
 void main() {
   runApp(const MyApp());

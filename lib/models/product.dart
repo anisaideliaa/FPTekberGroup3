@@ -3,6 +3,7 @@ class Product {
   final String price;
   final String image;
   final String category;
+  final String? seller;
   final String weight;
   final String description;
   final double rating;
@@ -13,6 +14,7 @@ class Product {
     required this.price,
     required this.image,
     required this.category,
+    this.seller,
     required this.weight,
     required this.description,
     this.rating = 4.65,
