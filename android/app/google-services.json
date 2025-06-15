@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "186749122245",
+    "project_id": "pasartani-21",
+    "storage_bucket": "pasartani-21.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:186749122245:android:15bbd58a3a1f5ce30562ac",
+        "android_client_info": {
+          "package_name": "com.example.pasar_tani_nelayan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDSN3zoCL4kvRMLURIx4gdZQ31lMIMsFQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
