@@ -7,6 +7,8 @@ import '../widgets/map_section.dart';
 import '../widgets/search_bar_widget.dart';
 import 'ProductDetailPage.dart';
 import 'CartPage.dart';
+import 'ProfilUser.dart';
+import 'RiwayatPesanan.dart'; // ✅ Tambahan import halaman
 
 class HomePage extends StatefulWidget {
   @override
@@ -15,6 +17,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final cart.CartProvider cartProvider = cart.CartProvider();
+  int _selectedIndex = 0;
 
   final List<Product> products = [
     Product(
@@ -87,16 +90,39 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const RiwayatPesananPage(),
+        ),
+      );
+    }
+
+    if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ProfilUserPage(),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF5F3E7),
+      backgroundColor: const Color(0xFFF5F3E7),
       appBar: CustomAppBar(title: 'Beranda'),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Search Bar
             SearchBarWidget(
               cartProvider: cartProvider,
               onCartTap: () {
@@ -108,19 +134,14 @@ class _HomePageState extends State<HomePage> {
                 );
               },
             ),
-
-            // Map Section
             MapSection(),
-
-            SizedBox(height: 20),
-
-            // Products Section
+            const SizedBox(height: 20),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     'Untuk Anda',
                     style: TextStyle(
                       fontSize: 18,
@@ -128,14 +149,15 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey[400]!),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
-                      children: [
+                      children: const [
                         Icon(Icons.tune, size: 16, color: Colors.grey),
                         SizedBox(width: 4),
                         Text(
@@ -150,20 +172,17 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-
-            SizedBox(height: 16),
-
-            // Product Grid
+            const SizedBox(height: 16),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: GridView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3, // 3 kolom seperti di Figma
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
-                  childAspectRatio: 0.62, // Sesuaikan agar proporsional
+                  childAspectRatio: 0.62,
                 ),
                 itemCount: products.length,
                 itemBuilder: (context, index) {
@@ -185,64 +204,14 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
             ),
-
-            SizedBox(height: 20),
-
-            // Produk Area Surabaya Section
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Produk Area Surabaya',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-
-            SizedBox(height: 16),
-
-            // Additional products grid for Surabaya area
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.75,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                ),
-                itemCount: products.length,
-                itemBuilder: (context, index) {
-                  final product = products[index];
-                  return ProductCard(
-                    product: product,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProductDetailPage(
-                            product: product,
-                            cartProvider: cartProvider,
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-
-            SizedBox(height: 100),
+            const SizedBox(height: 100),
           ],
         ),
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.green[700],
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: BottomNavigationBar(
           backgroundColor: Colors.transparent,
@@ -250,7 +219,9 @@ class _HomePageState extends State<HomePage> {
           selectedItemColor: Colors.white,
           unselectedItemColor: Colors.white70,
           type: BottomNavigationBarType.fixed,
-          items: [
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
               label: 'Beranda',
