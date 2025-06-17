@@ -22,23 +22,13 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-
-    if (index == 1) {
+    setState(() => _selectedIndex = index);
+    if (index == 1)
+      Navigator.push(context,
+          MaterialPageRoute(builder: (_) => const RiwayatPesananPage()));
+    if (index == 2)
       Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const RiwayatPesananPage()),
-      );
-    }
-
-    if (index == 2) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const ProfilUserPage()),
-      );
-    }
+          context, MaterialPageRoute(builder: (_) => const ProfilUserPage()));
   }
 
   @override
@@ -52,14 +42,10 @@ class _HomePageState extends State<HomePage> {
           children: [
             SearchBarWidget(
               cartProvider: cartProvider,
-              onCartTap: () {
-                Navigator.push(
+              onCartTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CartPage(cartProvider: cartProvider),
-                  ),
-                );
-              },
+                      builder: (_) => CartPage(cartProvider: cartProvider))),
             ),
             MapSection(),
             const SizedBox(height: 20),
@@ -68,13 +54,9 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Untuk Anda',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  const Text('Untuk Anda',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -83,14 +65,11 @@ class _HomePageState extends State<HomePage> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
                       children: const [
                         Icon(Icons.tune, size: 16, color: Colors.grey),
                         SizedBox(width: 4),
-                        Text(
-                          'Filter Produk Yang Anda Cari',
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
+                        Text('Filter Produk Yang Anda Cari',
+                            style: TextStyle(fontSize: 12, color: Colors.grey)),
                         Icon(Icons.keyboard_arrow_down,
                             size: 16, color: Colors.grey),
                       ],
@@ -105,17 +84,12 @@ class _HomePageState extends State<HomePage> {
               child: StreamBuilder<QuerySnapshot>(
                 stream: ProductService().ambilSemuaProduk(),
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
+                  if (snapshot.connectionState == ConnectionState.waiting)
                     return const Center(child: CircularProgressIndicator());
-                  }
-
-                  if (snapshot.hasError) {
+                  if (snapshot.hasError)
                     return Text('Terjadi kesalahan: ${snapshot.error}');
-                  }
-
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty)
                     return const Center(child: Text('Belum ada produk.'));
-                  }
 
                   final produkList = snapshot.data!.docs;
 
@@ -125,23 +99,26 @@ class _HomePageState extends State<HomePage> {
                     itemCount: produkList.length,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
+                      crossAxisCount: 2,
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 12,
                       childAspectRatio: 0.62,
                     ),
                     itemBuilder: (context, index) {
-                      final data =
-                          produkList[index].data() as Map<String, dynamic>;
+                      final doc = produkList[index];
+                      final data = doc.data() as Map<String, dynamic>;
+
                       final product = Product(
+                        id: doc.id,
                         name: data['nama'] ?? '',
                         description: data['deskripsi'] ?? '',
                         price:
                             'Rp. ${data['harga']?.toStringAsFixed(0) ?? '0'}',
-                        image:
-                            '🛒', // atau tambahkan URL image di database kalau ada
+                        image: '🛒',
                         category: data['jenis'] ?? '',
-                        weight: '${data['berat']} KG',
+                        weight: '${data['berat'] ?? 0} KG',
+                        seller: data['penjual'] ??
+                            'CV. Maju Jaya Hasil Tani, Blok M',
                       );
 
                       return ProductCard(
@@ -150,10 +127,8 @@ class _HomePageState extends State<HomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ProductDetailPage(
-                                product: product,
-                                cartProvider: cartProvider,
-                              ),
+                              builder: (_) => ProductDetailPage(
+                                  product: product, cartProvider: cartProvider),
                             ),
                           );
                         },
@@ -181,18 +156,10 @@ class _HomePageState extends State<HomePage> {
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
           items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Beranda',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.local_shipping),
-              label: 'Dikirim &\nDiproses',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profil',
-            ),
+                icon: Icon(Icons.local_shipping), label: 'Dikirim &\nDiproses'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
           ],
         ),
       ),
