@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart'; // HARUS ADA, dari flutterfire configure
+
 import 'package:pasar_tani_nelayan/Pages/HomeToko.dart';
 import 'package:pasar_tani_nelayan/Pages/TambahProduk.dart';
 import 'package:pasar_tani_nelayan/Pages/BusinessProfilePage.dart';
@@ -11,6 +14,7 @@ import 'package:pasar_tani_nelayan/Pages/InformasiBank.dart';
 import 'package:pasar_tani_nelayan/Pages/GantiPassword.dart';
 import 'package:pasar_tani_nelayan/Pages/EditProfilUser.dart';
 import 'package:pasar_tani_nelayan/Pages/ScreenProfileUsaha.dart';
+
 import 'package:pasar_tani_nelayan/Pages/IdentitasPemilikPage.dart';
 import 'package:pasar_tani_nelayan/Pages/InformasiAkunUsaha.dart';
 import 'package:pasar_tani_nelayan/Pages/InformasiToko.dart';
@@ -19,7 +23,11 @@ import 'package:pasar_tani_nelayan/Pages/RegisterPage.dart';
 import 'package:pasar_tani_nelayan/Pages/Homepage.dart';
 import 'package:pasar_tani_nelayan/Pages/InformasiRekening.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 

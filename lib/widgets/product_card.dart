@@ -26,7 +26,7 @@ class ProductCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Label kategori
-            if (product.category != null && product.category!.isNotEmpty)
+            if (product.category.isNotEmpty)
               Container(
                 margin: const EdgeInsets.only(top: 8, left: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -35,7 +35,7 @@ class ProductCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  product.category!,
+                  product.category,
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
@@ -43,7 +43,6 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
               ),
-            // Gambar produk
             Expanded(
               child: Center(
                 child: product.image.startsWith('assets/')
@@ -52,40 +51,31 @@ class ProductCard extends StatelessWidget {
                     : Text(product.image, style: const TextStyle(fontSize: 40)),
               ),
             ),
-            // Nama produk
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               child: Text(
                 product.name,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                ),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            // Harga produk
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Text(
                 product.price,
                 style: const TextStyle(
-                  color: Colors.green,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
+                    color: Colors.green,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13),
               ),
             ),
-            // Nama toko
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               child: Text(
-                product.seller ?? "CV. Maju Jaya Hasil Tani, Blok M",
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: Colors.black54,
-                ),
+                product.seller,
+                style: const TextStyle(fontSize: 11, color: Colors.black54),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),

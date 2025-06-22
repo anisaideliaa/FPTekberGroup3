@@ -16,3 +16,15 @@ subprojects {
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
+
+buildscript {
+  dependencies {
+    classpath 'com.google.gms:google-services:4.3.15' // ← ini wajib
+  }
+}
+
+plugins {
+  // plugin lainnya
+  id 'com.google.gms.google-services' version '4.4.2' apply false
+}
+
