@@ -13,10 +13,8 @@ class CartProvider extends ChangeNotifier {
 
   List<CartItem> get items => _items;
 
-  // ✅ Getter itemCount
   int get itemCount => _items.length;
 
-  // ✅ Getter totalPrice
   double get totalPrice {
     double total = 0;
     for (var item in _items) {
@@ -28,7 +26,6 @@ class CartProvider extends ChangeNotifier {
     return total;
   }
 
-  // ✅ Tambahkan produk ke keranjang
   void addToCart(Product product) {
     final index = _items.indexWhere((item) => item.product.id == product.id);
     if (index != -1) {
@@ -39,7 +36,6 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ✅ Update jumlah produk
   void updateQuantity(Product product, int quantity) {
     final index = _items.indexWhere((item) => item.product.id == product.id);
     if (index != -1 && quantity > 0) {
@@ -48,15 +44,15 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
-  // ✅ Hapus produk dari keranjang
   void removeItem(Product product) {
     _items.removeWhere((item) => item.product.id == product.id);
     notifyListeners();
   }
 
-  // ✅ Kosongkan keranjang
   void clearCart() {
     _items.clear();
     notifyListeners();
   }
+
+  void clear() => clearCart(); // Alias supaya bisa pakai clear()
 }

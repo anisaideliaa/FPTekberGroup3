@@ -14,6 +14,8 @@ import 'ProfilToko.dart';
 import 'RiwayatPesanan.dart';
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -21,15 +23,23 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final cart.CartProvider cartProvider = cart.CartProvider();
   int _selectedIndex = 0;
+  String searchQuery = '';
 
-  void _onItemTapped(int index) {
+  void _onItemTapped(int index) async {
     setState(() => _selectedIndex = index);
-    if (index == 1)
-      Navigator.push(context,
-          MaterialPageRoute(builder: (_) => const RiwayatPesananPage()));
-    if (index == 2)
-      Navigator.push(
-          context, MaterialPageRoute(builder: (_) => const Profiluser()));
+
+    switch (index) {
+      case 0:
+        break;
+      case 1:
+        await Navigator.pushNamed(context, '/riwayat_pesanan');
+        setState(() => _selectedIndex = 0);
+        break;
+      case 2:
+        await Navigator.pushNamed(context, '/profil_user');
+        setState(() => _selectedIndex = 0);
+        break;
+    }
   }
 
   @override
@@ -44,9 +54,16 @@ class _HomePageState extends State<HomePage> {
             SearchBarWidget(
               cartProvider: cartProvider,
               onCartTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => CartPage(cartProvider: cartProvider))),
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CartPage(cartProvider: cartProvider),
+                ),
+              ),
+              onSearchSubmit: (value) {
+                setState(() {
+                  searchQuery = value.toLowerCase();
+                });
+              },
             ),
             MapSection(),
             const SizedBox(height: 20),
@@ -56,8 +73,10 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text('Untuk Anda',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins')),
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -70,7 +89,10 @@ class _HomePageState extends State<HomePage> {
                         Icon(Icons.tune, size: 16, color: Colors.grey),
                         SizedBox(width: 4),
                         Text('Filter Produk Yang Anda Cari',
-                            style: TextStyle(fontSize: 12, color: Colors.grey)),
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                                fontFamily: 'Poppins')),
                         Icon(Icons.keyboard_arrow_down,
                             size: 16, color: Colors.grey),
                       ],
@@ -90,9 +112,23 @@ class _HomePageState extends State<HomePage> {
                   if (snapshot.hasError)
                     return Text('Terjadi kesalahan: ${snapshot.error}');
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty)
-                    return const Center(child: Text('Belum ada produk.'));
+                    return const Center(
+                        child: Text('Belum ada produk.',
+                            style: TextStyle(fontFamily: 'Poppins')));
 
-                  final produkList = snapshot.data!.docs;
+                  final produkList = snapshot.data!.docs.where((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
+                    final namaProduk =
+                        (data['nama'] ?? '').toString().toLowerCase();
+                    return namaProduk.contains(searchQuery);
+                  }).toList();
+
+                  if (produkList.isEmpty) {
+                    return const Center(
+                      child: Text('Produk tidak ditemukan.',
+                          style: TextStyle(fontFamily: 'Poppins')),
+                    );
+                  }
 
                   return GridView.builder(
                     shrinkWrap: true,
@@ -115,7 +151,7 @@ class _HomePageState extends State<HomePage> {
                         description: data['deskripsi'] ?? '',
                         price:
                             'Rp. ${data['harga']?.toStringAsFixed(0) ?? '0'}',
-                        image: '🛒',
+                        image: data['imageUrl'] ?? '🛒',
                         category: data['jenis'] ?? '',
                         weight: '${data['berat'] ?? 0} KG',
                         seller: data['penjual'] ??
@@ -129,7 +165,9 @@ class _HomePageState extends State<HomePage> {
                             context,
                             MaterialPageRoute(
                               builder: (_) => ProductDetailPage(
-                                  product: product, cartProvider: cartProvider),
+                                product: product,
+                                cartProvider: cartProvider,
+                              ),
                             ),
                           );
                         },
@@ -144,9 +182,9 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.green[700],
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        decoration: const BoxDecoration(
+          color: Color(0xFF5D844A),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: BottomNavigationBar(
           backgroundColor: Colors.transparent,
@@ -154,12 +192,14 @@ class _HomePageState extends State<HomePage> {
           selectedItemColor: Colors.white,
           unselectedItemColor: Colors.white70,
           type: BottomNavigationBarType.fixed,
-          currentIndex: _selectedIndex,
+          selectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
+          unselectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
+          currentIndex: 0,
           onTap: _onItemTapped,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.local_shipping), label: 'Dikirim &\nDiproses'),
+                icon: Icon(Icons.local_shipping), label: 'Pesanan'),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
           ],
         ),

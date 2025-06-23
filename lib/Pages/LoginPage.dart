@@ -142,7 +142,7 @@ class _LoginFormState extends State<LoginForm> {
                           horizontal: 40, vertical: 12),
                     ),
                     onPressed: _login,
-                    child: const Text('Masuk Sebagai Pengguna',
+                    child: const Text('Masuk',
                         style: TextStyle(color: Colors.white)),
                   ),
             const SizedBox(height: 16),

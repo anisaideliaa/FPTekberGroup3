@@ -13,7 +13,8 @@ import 'package:pasar_tani_nelayan/Pages/AlamatPengguna.dart';
 import 'package:pasar_tani_nelayan/Pages/InformasiBank.dart';
 import 'package:pasar_tani_nelayan/Pages/GantiPassword.dart';
 import 'package:pasar_tani_nelayan/Pages/EditProfilUser.dart';
-import 'package:pasar_tani_nelayan/Pages/ScreenProfileUsaha.dart';
+import 'package:pasar_tani_nelayan/Pages/ProfilUsaha.dart';
+import 'package:pasar_tani_nelayan/Pages/KelolaPesananPage.dart';
 
 import 'package:pasar_tani_nelayan/Pages/IdentitasPemilikPage.dart';
 import 'package:pasar_tani_nelayan/Pages/ProfilUser.dart';
@@ -24,6 +25,7 @@ import 'package:pasar_tani_nelayan/Pages/Homepage.dart';
 import 'package:pasar_tani_nelayan/Pages/InformasiRekening.dart';
 import 'package:pasar_tani_nelayan/Pages/toko_login_page.dart';
 import 'package:pasar_tani_nelayan/Pages/toko_register_page.dart';
+import 'package:pasar_tani_nelayan/Pages/LoginPageToko.dart'; // <<< IMPORT BARU
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -47,6 +49,17 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
         textTheme:
             const TextTheme(bodyMedium: TextStyle(color: Colors.black87)),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFFF9F7E8),
+          elevation: 0,
+          titleTextStyle: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 22,
+            fontFamily: 'Poppins',
+          ),
+          iconTheme: IconThemeData(color: Color(0xFF5D844A)),
+        ),
       ),
       initialRoute: '/',
       routes: {
@@ -62,8 +75,10 @@ class MyApp extends StatelessWidget {
         '/informasi_bank': (context) => const InformasiBankPage(),
         '/ganti_password': (context) => const GantiPasswordPage(),
         '/edit_profil_user': (context) => const EditProfilUserPage(),
-        '/navigasi_profile_usaha': (context) => const ScreenProfileUsaha(),
-        '/profil_user': (context) => const Profiluser(),
+        '/navigasi_profile_usaha': (context) => const ProfileUsaha(),
+        '/profil_user': (context) => const ProfilUserPage(),
+        '/profil_usaha': (context) => const ProfileUsaha(),
+        '/informasi_usaha': (context) => const InformasiAkunPage(),
         '/identitas_pemilik': (context) => const IdentitasPemilikPage(),
         '/informasi_rekening': (context) => const InformasiRekeningPage(),
         '/informasi_toko': (context) => const InformasiTokoPage(),
@@ -72,6 +87,8 @@ class MyApp extends StatelessWidget {
         '/toko_login': (context) => const TokoLoginPage(),
         '/toko_register': (context) => const TokoRegisterPage(),
         '/toko_homepage': (context) => const TokoHomePage(),
+        '/kelola_pesanan': (context) => const KelolaPesananPage(),
+        '/login_page_toko': (context) => const LoginPageToko(),
       },
     );
   }

@@ -1,33 +1,56 @@
 import 'package:flutter/material.dart';
 
-class Profiluser extends StatefulWidget {
-  const Profiluser({super.key});
+// Impor halaman-halaman yang akan dituju oleh Bottom Nav Bar di halaman ini
+import 'package:pasar_tani_nelayan/Pages/Homepage.dart'; // Untuk navigasi kembali ke Beranda
+import 'package:pasar_tani_nelayan/Pages/RiwayatPesanan.dart'; // Untuk navigasi ke Pesanan
+
+class ProfilUserPage extends StatefulWidget {
+  const ProfilUserPage({super.key});
 
   @override
-  State<Profiluser> createState() => _ProfilUserState();
+  State<ProfilUserPage> createState() => _ProfilUserPageState();
 }
 
-class _ProfilUserState extends State<Profiluser> {
-  // Controllers untuk setiap field input
-  final TextEditingController _namaUsahaController =
-      TextEditingController(text: '');
-  final TextEditingController _emailController =
-      TextEditingController(text: 'petercrouch@gmail.com');
-  final TextEditingController _namaPenggunaController =
-      TextEditingController(text: 'Peter Crouch');
-  final TextEditingController _kataSandiController = TextEditingController(
-      text: '********'); // Representasi kata sandi tersembunyi
+class _ProfilUserPageState extends State<ProfilUserPage> {
+  int _selectedIndex = 2; // 'Profil' adalah index 2 di navbar ini
 
-  bool _isEditing = false; // State untuk mengontrol mode edit
+  // Widget pembantu untuk membuat item menu
+  Widget _buildMenuItem(BuildContext context,
+      {required IconData icon,
+      required String title,
+      required String routeName}) {
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 1,
+      child: ListTile(
+        leading: Icon(icon, color: const Color(0xFF5A6543)),
+        title: Text(title, style: const TextStyle(fontFamily: 'Poppins')),
+        trailing:
+            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+        onTap: () {
+          Navigator.pushNamed(context, routeName);
+        },
+      ),
+    );
+  }
 
-  @override
-  void dispose() {
-    // Pastikan untuk membuang controller saat widget di-dispose
-    _namaUsahaController.dispose();
-    _emailController.dispose();
-    _namaPenggunaController.dispose();
-    _kataSandiController.dispose();
-    super.dispose();
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    switch (index) {
+      case 0: // Beranda
+        Navigator.pushReplacementNamed(context, 'homepage');
+        break;
+      case 1: // Pesanan
+        Navigator.pushReplacementNamed(context, '/riwayat_pesanan');
+        break;
+      case 2: // Profil
+        // Sudah di halaman ini, tidak perlu navigasi
+        break;
+    }
   }
 
   @override
@@ -56,172 +79,80 @@ class _ProfilUserState extends State<Profiluser> {
         centerTitle: true, // Judul di tengah
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            // Gambar Profil
-            Container(
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white,
-                border: Border.all(color: const Color(0xFF5D844A), width: 2),
-              ),
-              child: const Icon(
-                Icons.account_circle, // Placeholder ikon orang
-                size: 100,
-                color: Colors.grey,
-              ),
+            const SizedBox(height: 30),
+            const CircleAvatar(
+              radius: 50,
+              backgroundColor: Color(0xFF5D844A),
+              child: Icon(Icons.person, size: 50, color: Colors.white),
             ),
-            const SizedBox(height: 20),
-            // Nama Usaha
-            Text(
-              _namaUsahaController.text, // Teks ini tidak bisa diedit
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-                fontFamily: 'Poppins',
-              ),
+            const SizedBox(height: 10),
+            const Text(
+              'PETER CROUCH',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  fontFamily: 'Poppins'),
+            ),
+            const SizedBox(height: 5),
+            const Text(
+              'Pengguna Biasa',
+              style: TextStyle(color: Colors.grey, fontFamily: 'Poppins'),
             ),
             const SizedBox(height: 30),
-
-            // Field Alamat Email
-            _buildTextField(
-              label: 'Alamat Email',
-              controller: _emailController,
-              isEnabled: _isEditing,
-              isObscureText: false,
-              suffixIcon: _isEditing ? Icons.edit : null,
+            _buildMenuItem(
+              context,
+              icon: Icons.info_outline,
+              title: 'Informasi Akun',
+              routeName: '/informasi_akun',
+            ),
+            _buildMenuItem(
+              context,
+              icon: Icons.location_on_outlined,
+              title: 'Alamat Pengguna',
+              routeName: '/alamat_pengguna',
+            ),
+            _buildMenuItem(
+              context,
+              icon: Icons.account_balance,
+              title: 'Informasi Bank',
+              routeName: '/informasi_bank',
+            ),
+            _buildMenuItem(
+              context,
+              icon: Icons.lock_outline,
+              title: 'Ganti Kata Sandi',
+              routeName: '/ganti_password',
             ),
             const SizedBox(height: 20),
-
-            // Field Nama Pengguna
-            _buildTextField(
-              label: 'Nama Pengguna',
-              controller: _namaPenggunaController,
-              isEnabled: _isEditing,
-              isObscureText: false,
-              suffixIcon: _isEditing ? Icons.edit : null,
-            ),
-            const SizedBox(height: 20),
-
-            // Field Kata Sandi
-            _buildTextField(
-              label: 'Kata Sandi',
-              controller: _kataSandiController,
-              isEnabled: _isEditing,
-              isObscureText: true, // Sembunyikan teks
-              suffixIcon: _isEditing ? Icons.edit : null,
-            ),
-            const SizedBox(height: 40),
-
-            // Tombol Perbarui/Simpan Informasi Akun
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  _isEditing = !_isEditing; // Toggle mode edit
-                });
-                if (!_isEditing) {
-                  // Jika beralih dari edit ke baca, berarti menyimpan perubahan
-                  _saveAccountInfo();
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5D844A), // Warna tombol
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10), // Sudut melengkung
-                ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-              ),
-              child: Text(
-                _isEditing
-                    ? 'Simpan Informasi Akun'
-                    : 'Perbarui Informasi Akun',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Poppins',
-                ),
-              ),
-            ),
           ],
         ),
       ),
-    );
-  }
-
-  // Widget pembantu untuk membuat TextField kustom
-  Widget _buildTextField({
-    required String label,
-    required TextEditingController controller,
-    required bool isEnabled,
-    bool isObscureText = false,
-    IconData? suffixIcon,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Colors.black54, // Warna label
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w500,
-          ),
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: Color(0xFF5D844A),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        const SizedBox(height: 5),
-        TextField(
-          controller: controller,
-          enabled: isEnabled,
-          obscureText: isObscureText,
-          style: const TextStyle(
-            fontSize: 16,
-            color: Colors.black,
-            fontFamily: 'Poppins',
-          ),
-          decoration: InputDecoration(
-            isDense: true, // Membuat TextField lebih ringkas secara vertikal
-            contentPadding:
-                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0),
-            suffixIcon: suffixIcon != null
-                ? Icon(suffixIcon, color: Colors.black54, size: 20)
-                : null,
-            suffixIconConstraints:
-                const BoxConstraints(minWidth: 30, minHeight: 0),
-            enabledBorder: const UnderlineInputBorder(
-              borderSide:
-                  BorderSide(color: Colors.black38), // Garis bawah saat enable
-            ),
-            focusedBorder: const UnderlineInputBorder(
-              borderSide: BorderSide(
-                  color: Color(0xFF5D844A), width: 2), // Garis bawah saat fokus
-            ),
-            disabledBorder: const UnderlineInputBorder(
-              borderSide: BorderSide(
-                  color:
-                      Colors.black38), // Garis bawah saat disable (mode baca)
-            ),
-          ),
-          readOnly:
-              !isEnabled, // Membuat TextField hanya baca jika tidak dalam mode edit
+        child: BottomNavigationBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white70,
+          type: BottomNavigationBarType.fixed,
+          selectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
+          unselectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+          items: const [
+            // PERBAIKAN DI SINI: Bungkus IconData dengan widget Icon()
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.local_shipping), label: 'Pesanan'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
+          ],
         ),
-      ],
-    );
-  }
-
-  // Fungsi untuk "menyimpan" informasi akun
-  void _saveAccountInfo() {
-    // Di sini Anda akan menambahkan logika untuk menyimpan data ke database atau API
-    // Contoh: print(_emailController.text);
-    //         print(_namaPenggunaController.text);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Informasi akun berhasil diperbarui!')),
+      ),
     );
   }
 }

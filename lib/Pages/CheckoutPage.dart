@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../providers/cart_provider.dart';
+import 'PembayaranPage.dart';
 
 class CheckoutPage extends StatelessWidget {
   final CartProvider cartProvider;
@@ -8,18 +9,15 @@ class CheckoutPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Dummy data for address, shipping, payment, etc.
     final address =
         'Jalan Raya Jaksa | RT.06/RW.03 Keputih, Sukolilo, Surabaya, 60111. (Depan Masjid Al-Muttaqin)';
     final shippingMethod = 'Pengiriman Reguler\n1-2 Hari';
     final paymentMethod = 'Bank BNI\n120*****54';
     final coupon = 'Gratis Ongkir\nDaerah Surabaya';
 
-    // Example: using the first cart item for display
     final cartItem =
         cartProvider.items.isNotEmpty ? cartProvider.items[0] : null;
 
-    // Dummy price breakdown
     final productPrice = 1100000;
     final shippingFee = 180000;
     final guarantee = 0;
@@ -44,7 +42,7 @@ class CheckoutPage extends StatelessWidget {
                 height: 40,
                 color: Colors.green[100],
                 child: Image.asset(
-                  'assets/logo.png', // Replace with your logo asset if available
+                  'assets/logo.png',
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) =>
                       const Icon(Icons.eco, color: Colors.green, size: 24),
@@ -68,7 +66,6 @@ class CheckoutPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Alamat Anda
             const Text(
               'Alamat Anda',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -90,8 +87,6 @@ class CheckoutPage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-
-            // Product Card
             if (cartItem != null)
               Container(
                 decoration: BoxDecoration(
@@ -101,7 +96,6 @@ class CheckoutPage extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    // Product image
                     Container(
                       width: 70,
                       height: 70,
@@ -120,7 +114,6 @@ class CheckoutPage extends StatelessWidget {
                             ),
                     ),
                     const SizedBox(width: 16),
-                    // Product info
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,7 +137,6 @@ class CheckoutPage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    // Quantity
                     Column(
                       children: [
                         Container(
@@ -168,8 +160,6 @@ class CheckoutPage extends StatelessWidget {
                 ),
               ),
             const SizedBox(height: 24),
-
-            // Metode Pengiriman
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -188,8 +178,6 @@ class CheckoutPage extends StatelessWidget {
               style: const TextStyle(fontSize: 15),
             ),
             const SizedBox(height: 20),
-
-            // Metode Pembayaran
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -208,8 +196,6 @@ class CheckoutPage extends StatelessWidget {
               style: const TextStyle(fontSize: 15),
             ),
             const SizedBox(height: 20),
-
-            // Kupon Harga
             const Text(
               'Kupon Harga',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -219,8 +205,6 @@ class CheckoutPage extends StatelessWidget {
               style: const TextStyle(fontSize: 15),
             ),
             const SizedBox(height: 20),
-
-            // Total Harga
             const Text(
               'Total Harga',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -263,8 +247,6 @@ class CheckoutPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-
-            // Bayar button
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -278,7 +260,15 @@ class CheckoutPage extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    // Handle payment action
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PembayaranPage(
+                          cartProvider: cartProvider,
+                          totalHarga: totalPrice.toDouble(),
+                        ),
+                      ),
+                    );
                   },
                   child: const Text(
                     'Bayar',

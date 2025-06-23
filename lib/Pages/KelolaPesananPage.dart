@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../widgets/custom_app_bar.dart';
 
-class RiwayatPesananPage extends StatelessWidget {
-  const RiwayatPesananPage({super.key});
+class KelolaPesananPage extends StatelessWidget {
+  const KelolaPesananPage({super.key});
 
   Color _statusColor(String status) {
     switch (status) {
@@ -20,11 +19,19 @@ class RiwayatPesananPage extends StatelessWidget {
     }
   }
 
+  String _buttonLabel(String status) {
+    if (status == 'Menunggu Konfirmasi') return 'Terima Pesanan';
+    if (status == 'Pesanan Diproses') return 'Kirim Pesanan';
+    return '';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5E9),
-      appBar: const CustomAppBar(title: 'Riwayat Pesanan'),
+      backgroundColor: const Color(0xFFF5F3E7),
+      appBar: AppBar(
+        title: const Text('CV. Maju Jaya Hasil Tani, Blok M'),
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance.collection('pesanan').where('status',
             whereIn: [
@@ -35,7 +42,7 @@ class RiwayatPesananPage extends StatelessWidget {
             ]).snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('Belum ada riwayat pesanan.'));
+            return const Center(child: Text('Belum ada pesanan.'));
           }
 
           final docs = snapshot.data!.docs;
@@ -50,18 +57,25 @@ class RiwayatPesananPage extends StatelessWidget {
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(data['produk'],
+                      Text('Produk: ${data['produk']}',
                           style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              fontFamily: 'Poppins')),
                       const SizedBox(height: 4),
-                      Text('Jumlah: ${data['jumlah']}'),
-                      Text('Total: Rp ${data['total']}'),
-                      const SizedBox(height: 8),
+                      Text('Jumlah: ${data['jumlah']} unit',
+                          style: const TextStyle(fontFamily: 'Poppins')),
+                      Text('Total: Rp ${data['total']}',
+                          style: const TextStyle(fontFamily: 'Poppins')),
+                      const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -75,31 +89,46 @@ class RiwayatPesananPage extends StatelessWidget {
                             child: Text(
                               status,
                               style: const TextStyle(
-                                  color: Colors.white, fontSize: 12),
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontFamily: 'Poppins'),
                             ),
                           ),
-                          if (status == 'Sedang Dikirim')
+                          if (status == 'Menunggu Konfirmasi' ||
+                              status == 'Pesanan Diproses')
                             ElevatedButton(
                               onPressed: () async {
-                                await FirebaseFirestore.instance
-                                    .collection('pesanan')
-                                    .doc(docId)
-                                    .update({'status': 'Pesanan Selesai'});
+                                String newStatus = '';
+                                if (status == 'Menunggu Konfirmasi') {
+                                  newStatus = 'Pesanan Diproses';
+                                } else if (status == 'Pesanan Diproses') {
+                                  newStatus = 'Sedang Dikirim';
+                                }
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                        'Pesanan dikonfirmasi sebagai selesai.'),
-                                  ),
-                                );
+                                if (newStatus.isNotEmpty) {
+                                  await FirebaseFirestore.instance
+                                      .collection('pesanan')
+                                      .doc(docId)
+                                      .update({'status': newStatus});
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          'Status pesanan diubah menjadi "$newStatus"'),
+                                    ),
+                                  );
+                                }
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.green,
                               ),
-                              child: const Text('Pesanan Sudah Sampai'),
+                              child: Text(
+                                _buttonLabel(status),
+                                style: const TextStyle(fontFamily: 'Poppins'),
+                              ),
                             ),
                         ],
-                      ),
+                      )
                     ],
                   ),
                 ),
@@ -121,21 +150,22 @@ class RiwayatPesananPage extends StatelessWidget {
           type: BottomNavigationBarType.fixed,
           selectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
           unselectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
-          currentIndex: 1,
+          currentIndex: 1, // Kelola Pesanan
           onTap: (index) async {
             if (index == 0) {
-              Navigator.pushReplacementNamed(context, 'homepage');
-            } else if (index == 1) {
-              // stay here
+              Navigator.pushReplacementNamed(context, '/toko_homepage');
             } else if (index == 2) {
-              await Navigator.pushNamed(context, '/profil_user');
+              await Navigator.pushNamed(context, '/profil_usaha');
             }
           },
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.local_shipping), label: 'Pesanan'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
+                icon: Icon(Icons.grid_view), label: 'Produk'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.inventory_2_outlined),
+                label: 'Kelola Pesanan'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.person), label: 'Profil Usaha'),
           ],
         ),
       ),
