@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 
 // Import halaman-halaman yang akan dituju
-import 'package:pasar_tani_nelayan/Pages/Homepage.dart'; // Untuk login pengguna
-import 'package:pasar_tani_nelayan/Pages/LoginPageToko.dart'; // Untuk navigasi ke login toko
-import 'package:pasar_tani_nelayan/Pages/RegisterPage.dart'; // Jika dialog Register terpisah sebagai halaman
+import 'package:pasar_tani_nelayan/Pages/HomeToko.dart'; // Untuk login toko
+import 'package:pasar_tani_nelayan/Pages/LoginPage.dart'; // Untuk navigasi kembali ke login user
+import 'package:pasar_tani_nelayan/Pages/RegisterPage.dart'; // Untuk register toko (jika terpisah) atau register umum
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class LoginPageToko extends StatefulWidget {
+  const LoginPageToko({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<LoginPageToko> createState() => _LoginPageTokoState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageTokoState extends State<LoginPageToko> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -31,16 +31,16 @@ class _LoginPageState extends State<LoginPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reset Kata Sandi',
-            style: TextStyle(fontFamily: 'Poppins')),
+        title: const Text('Reset Kata Sandi Toko',
+            style: TextStyle(fontFamily: 'Poppins')), // Ubah teks
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextFormField(
               controller: _emailController,
               decoration: const InputDecoration(
-                  labelText: 'Masukkan Email',
-                  labelStyle: TextStyle(fontFamily: 'Poppins')),
+                  labelText: 'Masukkan Email Toko',
+                  labelStyle: TextStyle(fontFamily: 'Poppins')), // Ubah teks
               keyboardType: TextInputType.emailAddress,
               style: const TextStyle(fontFamily: 'Poppins'),
             ),
@@ -61,8 +61,8 @@ class _LoginPageState extends State<LoginPage> {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                    content: Text('Kata sandi berhasil diubah',
-                        style: TextStyle(fontFamily: 'Poppins'))),
+                    content: Text('Kata sandi toko berhasil diubah',
+                        style: TextStyle(fontFamily: 'Poppins'))), // Ubah teks
               );
             },
             child: const Text('Kirim', style: TextStyle(fontFamily: 'Poppins')),
@@ -73,78 +73,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _showRegisterDialog() {
-    // Navigasi ke halaman RegisterPage
+    // Navigasi ke halaman RegisterPage. Anda bisa membuat RegisterPageToko terpisah
+    // atau menggunakan RegisterPage yang sama dengan menambahkan parameter jenis akun.
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => const RegisterPage()));
-    // Jika Anda ingin tetap menggunakan dialog untuk register, gunakan kode di bawah ini:
-    /*
-    final TextEditingController _newUsernameController = TextEditingController();
-    final TextEditingController _newEmailController = TextEditingController();
-    final TextEditingController _newPasswordController = TextEditingController();
-    final GlobalKey<FormState> _registerFormKey = GlobalKey<FormState>();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Buat Akun Baru'),
-        content: Form(
-          key: _registerFormKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: _newUsernameController,
-                decoration: const InputDecoration(labelText: 'Nama Pengguna'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Nama Pengguna wajib diisi';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _newEmailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Email wajib diisi';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _newPasswordController,
-                decoration: const InputDecoration(labelText: 'Kata Sandi'),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Kata Sandi wajib diisi';
-                  } else if (value.length < 8 || !value.contains(RegExp(r'[A-Z]'))) {
-                    return 'Minimal 8 huruf & ada huruf kapital';
-                  }
-                  return null;
-                },
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              if (_registerFormKey.currentState!.validate()) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Akun berhasil dibuat, silakan login.')),
-                );
-              }
-            },
-            child: const Text('Buat Akun'),
-          ),
-        ],
-      ),
-    );
-    */
   }
 
   @override
@@ -168,10 +100,10 @@ class _LoginPageState extends State<LoginPage> {
                     _buildTextField(
                       controller: _usernameController,
                       icon: Icons.person,
-                      hint: 'Nama Pengguna atau Email atau No. Telp',
+                      hint: 'Nama Pengguna Toko atau Email Toko', // Ubah teks
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Mohon masukkan informasi login';
+                          return 'Mohon masukkan informasi login toko'; // Ubah teks
                         }
                         return null;
                       },
@@ -180,11 +112,11 @@ class _LoginPageState extends State<LoginPage> {
                     _buildTextField(
                       controller: _passwordController,
                       icon: Icons.lock,
-                      hint: 'Kata Sandi',
+                      hint: 'Kata Sandi Toko', // Ubah teks
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Mohon masukkan kata sandi';
+                          return 'Mohon masukkan kata sandi toko'; // Ubah teks
                         }
                         return null;
                       },
@@ -201,12 +133,13 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
-                          // Navigasi ke homepage untuk pengguna biasa
-                          Navigator.pushReplacementNamed(context, 'homepage');
+                          // Navigasi ke homepage toko
+                          Navigator.pushReplacementNamed(
+                              context, '/toko_homepage');
                         }
                       },
                       child: const Text(
-                        'Masuk',
+                        'Masuk', // Ubah teks
                         style: TextStyle(
                             color: Colors.white, fontFamily: 'Poppins'),
                       ),
@@ -216,17 +149,18 @@ class _LoginPageState extends State<LoginPage> {
                       onPressed: _showForgotPasswordDialog,
                       child: const Text('Lupa Kata Sandi',
                           style: TextStyle(
-                              color: Colors.black87, fontFamily: 'Poppins')),
+                              color: Colors.black87,
+                              fontFamily: 'Poppins')), // Ubah teks
                     ),
                     TextButton(
                       onPressed: () {
-                        // Navigasi ke halaman login toko
-                        Navigator.pushReplacementNamed(
-                            context, '/login_page_toko');
+                        // Navigasi kembali ke halaman login pengguna
+                        Navigator.pushReplacementNamed(context, '/login');
                       },
-                      child: const Text('Masuk Sebagai Toko',
+                      child: const Text('Masuk Sebagai Pengguna',
                           style: TextStyle(
-                              color: Colors.black87, fontFamily: 'Poppins')),
+                              color: Colors.black87,
+                              fontFamily: 'Poppins')), // Ubah teks
                     ),
                   ],
                 ),
@@ -241,7 +175,7 @@ class _LoginPageState extends State<LoginPage> {
                     onTap: _showRegisterDialog,
                     child: RichText(
                       text: const TextSpan(
-                        text: 'Belum memiliki akun? ',
+                        text: 'Belum memiliki akun toko? ', // Ubah teks
                         style: TextStyle(
                             color: Colors.black, fontFamily: 'Poppins'),
                         children: [
@@ -277,11 +211,10 @@ class _LoginPageState extends State<LoginPage> {
       controller: controller,
       obscureText: obscureText,
       validator: validator,
-      style: const TextStyle(fontFamily: 'Poppins'), // Tambahkan fontFamily
+      style: const TextStyle(fontFamily: 'Poppins'),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle:
-            const TextStyle(fontFamily: 'Poppins'), // Tambahkan fontFamily
+        hintStyle: const TextStyle(fontFamily: 'Poppins'),
         prefixIcon: Icon(icon, color: Colors.grey),
         filled: true,
         fillColor: const Color(0xFFEFEFEF),

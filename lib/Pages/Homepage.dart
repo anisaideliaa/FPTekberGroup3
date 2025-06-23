@@ -9,34 +9,54 @@ import '../widgets/map_section.dart';
 import '../widgets/search_bar_widget.dart';
 import 'ProductDetailPage.dart';
 import 'CartPage.dart';
-import 'ProfilUser.dart';
-import 'RiwayatPesanan.dart';
+// RiwayatPesanan.dart dan ProfilUser.dart akan dipush, jadi tidak perlu IndexedStack
+// import 'ProfilUser.dart'; // Tidak perlu diimpor jika hanya navigasi
+// import 'RiwayatPesanan.dart'; // Tidak perlu diimpor jika hanya navigasi
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
   final cart.CartProvider cartProvider = cart.CartProvider();
-  int _selectedIndex = 0;
+  // _selectedIndex di HomePage ini hanya untuk tab 'Beranda'
+  // Karena tab lain akan menavigasi ke halaman terpisah.
+  int _selectedIndex =
+      0; // Beranda (index 0) akan selalu terpilih secara visual di sini.
 
-  void _onItemTapped(int index) {
-    setState(() => _selectedIndex = index);
-    if (index == 1)
-      Navigator.push(context,
-          MaterialPageRoute(builder: (_) => const RiwayatPesananPage()));
-    if (index == 2)
-      Navigator.push(
-          context, MaterialPageRoute(builder: (_) => const ProfilUserPage()));
+  void _onItemTapped(int index) async {
+    // Tetapkan index yang dipilih secara visual untuk HomePage itu sendiri
+    // agar 'Beranda' tetap terpilih jika kita kembali.
+    setState(() => _selectedIndex = index); // Ini akan selalu 0 di HomePage
+
+    switch (index) {
+      case 0:
+        // Sudah di halaman Beranda, tidak perlu navigasi
+        break;
+      case 1: // Untuk tab 'Pesanan'
+        await Navigator.pushNamed(context, '/riwayat_pesanan');
+        // Setelah kembali dari RiwayatPesananPage, reset selectedIndex ke Beranda
+        setState(() => _selectedIndex = 0);
+        break;
+      case 2: // Untuk tab 'Profil'
+        await Navigator.pushNamed(context, '/profil_user');
+        // Setelah kembali dari ProfilUserPage, reset selectedIndex ke Beranda
+        setState(() => _selectedIndex = 0);
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F3E7),
-      appBar: CustomAppBar(title: 'Beranda'),
+      appBar:
+          CustomAppBar(title: 'Beranda'), // AppBar hanya untuk halaman Beranda
       body: SingleChildScrollView(
+        // Konten halaman Beranda
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -55,8 +75,10 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text('Untuk Anda',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins')),
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -69,7 +91,10 @@ class _HomePageState extends State<HomePage> {
                         Icon(Icons.tune, size: 16, color: Colors.grey),
                         SizedBox(width: 4),
                         Text('Filter Produk Yang Anda Cari',
-                            style: TextStyle(fontSize: 12, color: Colors.grey)),
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                                fontFamily: 'Poppins')),
                         Icon(Icons.keyboard_arrow_down,
                             size: 16, color: Colors.grey),
                       ],
@@ -89,7 +114,9 @@ class _HomePageState extends State<HomePage> {
                   if (snapshot.hasError)
                     return Text('Terjadi kesalahan: ${snapshot.error}');
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty)
-                    return const Center(child: Text('Belum ada produk.'));
+                    return const Center(
+                        child: Text('Belum ada produk.',
+                            style: TextStyle(fontFamily: 'Poppins')));
 
                   final produkList = snapshot.data!.docs;
 
@@ -114,7 +141,7 @@ class _HomePageState extends State<HomePage> {
                         description: data['deskripsi'] ?? '',
                         price:
                             'Rp. ${data['harga']?.toStringAsFixed(0) ?? '0'}',
-                        image: '🛒',
+                        image: data['imageUrl'] ?? '🛒',
                         category: data['jenis'] ?? '',
                         weight: '${data['berat'] ?? 0} KG',
                         seller: data['penjual'] ??
@@ -143,9 +170,9 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.green[700],
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        decoration: const BoxDecoration(
+          color: Color(0xFF5D844A),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: BottomNavigationBar(
           backgroundColor: Colors.transparent,
@@ -153,12 +180,16 @@ class _HomePageState extends State<HomePage> {
           selectedItemColor: Colors.white,
           unselectedItemColor: Colors.white70,
           type: BottomNavigationBarType.fixed,
-          currentIndex: _selectedIndex,
+          selectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
+          unselectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
+          // currentIndex selalu 0 karena 'Beranda' adalah satu-satunya tab yang dikelola secara internal.
+          // Tab lain akan menavigasi keluar.
+          currentIndex: 0, // Selalu tunjukkan 'Beranda' terpilih di HomePage
           onTap: _onItemTapped,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.local_shipping), label: 'Dikirim &\nDiproses'),
+                icon: Icon(Icons.local_shipping), label: 'Pesanan'),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
           ],
         ),
