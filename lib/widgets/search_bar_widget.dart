@@ -1,16 +1,29 @@
 import 'package:flutter/material.dart';
-// Update the import path below to the correct relative path if needed
 import '../providers/cart_provider.dart';
 
-class SearchBarWidget extends StatelessWidget {
+class SearchBarWidget extends StatefulWidget {
   final CartProvider cartProvider;
   final VoidCallback onCartTap;
+  final Function(String) onSearchSubmit;
 
   const SearchBarWidget({
     Key? key,
     required this.cartProvider,
     required this.onCartTap,
+    required this.onSearchSubmit,
   }) : super(key: key);
+
+  @override
+  State<SearchBarWidget> createState() => _SearchBarWidgetState();
+}
+
+class _SearchBarWidgetState extends State<SearchBarWidget> {
+  final TextEditingController _controller = TextEditingController();
+
+  void _submitSearch() {
+    final query = _controller.text.trim();
+    widget.onSearchSubmit(query);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,16 +31,15 @@ class SearchBarWidget extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Row(
         children: [
-          // Search Field
+          // Text field
           Expanded(
             child: TextField(
+              controller: _controller,
               decoration: InputDecoration(
                 hintText: 'Cari produk...',
-                prefixIcon: Icon(Icons.search),
                 filled: true,
                 fillColor: Colors.white,
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30),
                   borderSide: BorderSide.none,
@@ -35,28 +47,34 @@ class SearchBarWidget extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(width: 12),
-          // Cart Icon with Badge
+          const SizedBox(width: 8),
+          // Tombol search
+          IconButton(
+            icon: Icon(Icons.search, color: Colors.green[800]),
+            onPressed: _submitSearch,
+          ),
+          const SizedBox(width: 8),
+          // Cart
           Stack(
             alignment: Alignment.topRight,
             children: [
               IconButton(
                 icon: Icon(Icons.shopping_cart, color: Colors.green[700]),
-                onPressed: onCartTap,
+                onPressed: widget.onCartTap,
               ),
-              if (cartProvider.itemCount > 0)
+              if (widget.cartProvider.itemCount > 0)
                 Positioned(
                   right: 6,
                   top: 6,
                   child: Container(
-                    padding: EdgeInsets.all(4),
-                    decoration: BoxDecoration(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
                       color: Colors.red,
                       shape: BoxShape.circle,
                     ),
                     child: Text(
-                      '${cartProvider.itemCount}',
-                      style: TextStyle(
+                      '${widget.cartProvider.itemCount}',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,

@@ -9,9 +9,6 @@ import '../widgets/map_section.dart';
 import '../widgets/search_bar_widget.dart';
 import 'ProductDetailPage.dart';
 import 'CartPage.dart';
-// RiwayatPesanan.dart dan ProfilUser.dart akan dipush, jadi tidak perlu IndexedStack
-// import 'ProfilUser.dart'; // Tidak perlu diimpor jika hanya navigasi
-// import 'RiwayatPesanan.dart'; // Tidak perlu diimpor jika hanya navigasi
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,28 +19,21 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final cart.CartProvider cartProvider = cart.CartProvider();
-  // _selectedIndex di HomePage ini hanya untuk tab 'Beranda'
-  // Karena tab lain akan menavigasi ke halaman terpisah.
-  int _selectedIndex =
-      0; // Beranda (index 0) akan selalu terpilih secara visual di sini.
+  int _selectedIndex = 0;
+  String searchQuery = '';
 
   void _onItemTapped(int index) async {
-    // Tetapkan index yang dipilih secara visual untuk HomePage itu sendiri
-    // agar 'Beranda' tetap terpilih jika kita kembali.
-    setState(() => _selectedIndex = index); // Ini akan selalu 0 di HomePage
+    setState(() => _selectedIndex = index);
 
     switch (index) {
       case 0:
-        // Sudah di halaman Beranda, tidak perlu navigasi
         break;
-      case 1: // Untuk tab 'Pesanan'
+      case 1:
         await Navigator.pushNamed(context, '/riwayat_pesanan');
-        // Setelah kembali dari RiwayatPesananPage, reset selectedIndex ke Beranda
         setState(() => _selectedIndex = 0);
         break;
-      case 2: // Untuk tab 'Profil'
+      case 2:
         await Navigator.pushNamed(context, '/profil_user');
-        // Setelah kembali dari ProfilUserPage, reset selectedIndex ke Beranda
         setState(() => _selectedIndex = 0);
         break;
     }
@@ -53,19 +43,24 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F3E7),
-      appBar:
-          CustomAppBar(title: 'Beranda'), // AppBar hanya untuk halaman Beranda
+      appBar: CustomAppBar(title: 'Beranda'),
       body: SingleChildScrollView(
-        // Konten halaman Beranda
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SearchBarWidget(
               cartProvider: cartProvider,
               onCartTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => CartPage(cartProvider: cartProvider))),
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CartPage(cartProvider: cartProvider),
+                ),
+              ),
+              onSearchSubmit: (value) {
+                setState(() {
+                  searchQuery = value.toLowerCase();
+                });
+              },
             ),
             MapSection(),
             const SizedBox(height: 20),
@@ -118,7 +113,19 @@ class _HomePageState extends State<HomePage> {
                         child: Text('Belum ada produk.',
                             style: TextStyle(fontFamily: 'Poppins')));
 
-                  final produkList = snapshot.data!.docs;
+                  final produkList = snapshot.data!.docs.where((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
+                    final namaProduk =
+                        (data['nama'] ?? '').toString().toLowerCase();
+                    return namaProduk.contains(searchQuery);
+                  }).toList();
+
+                  if (produkList.isEmpty) {
+                    return const Center(
+                      child: Text('Produk tidak ditemukan.',
+                          style: TextStyle(fontFamily: 'Poppins')),
+                    );
+                  }
 
                   return GridView.builder(
                     shrinkWrap: true,
@@ -155,7 +162,9 @@ class _HomePageState extends State<HomePage> {
                             context,
                             MaterialPageRoute(
                               builder: (_) => ProductDetailPage(
-                                  product: product, cartProvider: cartProvider),
+                                product: product,
+                                cartProvider: cartProvider,
+                              ),
                             ),
                           );
                         },
@@ -182,9 +191,7 @@ class _HomePageState extends State<HomePage> {
           type: BottomNavigationBarType.fixed,
           selectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
           unselectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
-          // currentIndex selalu 0 karena 'Beranda' adalah satu-satunya tab yang dikelola secara internal.
-          // Tab lain akan menavigasi keluar.
-          currentIndex: 0, // Selalu tunjukkan 'Beranda' terpilih di HomePage
+          currentIndex: 0,
           onTap: _onItemTapped,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
