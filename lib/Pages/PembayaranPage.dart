@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import '../providers/cart_provider.dart';
-import 'RiwayatPesanan.dart'; // pastikan path ini sesuai
+import 'RiwayatPesanan.dart';
 
-class PembayaranPage extends StatelessWidget {
+class PembayaranPage extends StatefulWidget {
   final CartProvider cartProvider;
   final double totalHarga;
 
@@ -13,29 +13,27 @@ class PembayaranPage extends StatelessWidget {
     required this.totalHarga,
   }) : super(key: key);
 
-  void _kirimPesananKeFirestore(BuildContext context) async {
-    final now = DateTime.now();
+  @override
+  State<PembayaranPage> createState() => _PembayaranPageState();
+}
 
-    for (var item in cartProvider.items) {
-      await FirebaseFirestore.instance.collection('pesanan').add({
-        'produk': item.product.name,
-        'jumlah': item.quantity,
-        'total': totalHarga.toInt(),
-        'status': 'Menunggu Konfirmasi', // status untuk RiwayatPesananPage
-        'nama_pembeli': 'Nama Pembeli Demo', // bisa ambil dari auth jika ada
-        'timestamp': now,
+class _PembayaranPageState extends State<PembayaranPage> {
+  PlatformFile? _buktiPembayaran;
+
+  Future<void> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+    if (result != null && result.files.isNotEmpty) {
+      setState(() {
+        _buktiPembayaran = result.files.first;
       });
     }
+  }
 
-    cartProvider.clearCart();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Pembayaran berhasil dikonfirmasi!')),
-    );
-
-    Navigator.pushAndRemoveUntil(
+  void _onSudahBayar() {
+    // TODO: Upload file to server or Firestore if needed
+    Navigator.pushNamedAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_) => const RiwayatPesananPage()),
+      '/riwayat_pesanan',
       (route) => false,
     );
   }
@@ -43,19 +41,118 @@ class PembayaranPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Pembayaran')),
+      backgroundColor: const Color(0xFFF5F3E7),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: const Text(
+          'Pembayaran',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text('Nomor Rekening: 120xxxxxxx54 (BNI)'),
-            Text('Total Pembayaran: Rp ${totalHarga.toInt()}'),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () => _kirimPesananKeFirestore(context),
-              child: const Text('Sudah Bayar'),
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 24.0),
+                child: Icon(Icons.account_balance_wallet,
+                    size: 80, color: Colors.green[700]),
+              ),
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
+                margin: const EdgeInsets.symmetric(horizontal: 24),
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Transfer ke rekening berikut:',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text('Bank: BNI', style: TextStyle(fontSize: 15)),
+                      const Text('Nomor Rekening: 120xxxxxxxx54',
+                          style: TextStyle(fontSize: 15, letterSpacing: 1.2)),
+                      const Text('a.n. CV. Maju Jaya Hasil Tani',
+                          style: TextStyle(fontSize: 15)),
+                      const SizedBox(height: 16),
+                      const Text('Total Pembayaran:',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text(
+                        'Rp ${widget.totalHarga.toStringAsFixed(0)}',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text('Instruksi Pembayaran:',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
+                      const Text(
+                        '1. Transfer sesuai nominal ke rekening di atas.\n'
+                        '2. Simpan bukti pembayaran (foto/scan struk transfer).\n'
+                        '3. Klik tombol "Upload Bukti Pembayaran" dan pilih file bukti pembayaran Anda.\n'
+                        '4. Setelah berhasil upload, klik tombol "Sudah Bayar".\n'
+                        '5. Pesanan akan diproses setelah pembayaran terverifikasi.',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: _pickFile,
+                icon: const Icon(Icons.upload_file),
+                label: Text(_buktiPembayaran == null
+                    ? 'Upload Bukti Pembayaran'
+                    : 'Bukti Terupload: ${_buktiPembayaran!.name}'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey[200],
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24)),
+                  minimumSize: const Size(200, 48),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: 200,
+                height: 48,
+                child: ElevatedButton(
+                  onPressed: _buktiPembayaran == null ? null : _onSudahBayar,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green[700],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                  child: const Text(
+                    'Sudah Bayar',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

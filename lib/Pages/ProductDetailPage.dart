@@ -78,7 +78,13 @@ class ProductDetailPage extends StatelessWidget {
                     },
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green[700]),
-                    child: const Text('Beli Sekarang'),
+                    child: const Text(
+                      'Beli Sekarang',
+                      style: TextStyle(
+                        color: Colors.white, // warna tulisan putih
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ],

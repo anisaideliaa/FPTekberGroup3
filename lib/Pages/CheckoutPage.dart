@@ -42,7 +42,7 @@ class CheckoutPage extends StatelessWidget {
                 height: 40,
                 color: Colors.green[100],
                 child: Image.asset(
-                  'assets/logo.png',
+                  'assets/LogoPasarTani.png',
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) =>
                       const Icon(Icons.eco, color: Colors.green, size: 24),
