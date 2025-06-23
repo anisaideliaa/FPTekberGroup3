@@ -46,7 +46,7 @@ class RiwayatPesananPage extends StatelessWidget {
             itemBuilder: (context, index) {
               final data = docs[index].data() as Map<String, dynamic>;
               final docId = docs[index].id;
-              final status = data['status'];
+              final status = data['status'] ?? 'Tidak diketahui';
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8),
@@ -55,12 +55,14 @@ class RiwayatPesananPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(data['produk'],
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text(
+                        data['produk'] as String? ?? 'Nama Produk Tidak Ada',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
                       const SizedBox(height: 4),
-                      Text('Jumlah: ${data['jumlah']}'),
-                      Text('Total: Rp ${data['total']}'),
+                      Text('Jumlah: ${data['jumlah'] ?? 0}'),
+                      Text('Total: Rp ${data['total'] ?? 0}'),
                       const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -10,9 +10,17 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # UI
   cupertino_icons: ^1.0.8
   intl: ^0.19.0
-  cloud_firestore: ^4.13.0
+
+  # Firebase
+  firebase_core: ^2.30.0
+  firebase_auth: ^4.17.4
+  cloud_firestore: ^4.15.4
+  firebase_storage: ^11.6.6
+
+  # File/image picker (support web)
   file_picker: ^6.1.1
   image_picker: ^1.0.7
   image_picker_for_web: ^3.0.4
@@ -20,7 +28,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
@@ -32,59 +40,18 @@ flutter:
   fonts:
     - family: Poppins
       fonts:
-        - asset: fonts/Poppins-Black.ttf
-        - asset: fonts/Poppins-BlackItalic.ttf
-          style: italic
-        - asset: fonts/Poppins-Bold.ttf
-        - asset: fonts/Poppins-BoldItalic.ttf
-          style: italic
-        - asset: fonts/Poppins-ExtraBold.ttf
-        - asset: fonts/Poppins-ExtraBoldItalic.ttf
-          style: italic
-        - asset: fonts/Poppins-ExtraLight.ttf
-        - asset: fonts/Poppins-ExtraLightItalic.ttf
-          style: italic
-        - asset: fonts/Poppins-Italic.ttf
-          style: italic
-        - asset: fonts/Poppins-Light.ttf
-        - asset: fonts/Poppins-LightItalic.ttf
-          style: italic
-        - asset: fonts/Poppins-Medium.ttf
-        - asset: fonts/Poppins-MediumItalic.ttf
-          style: italic
         - asset: fonts/Poppins-Regular.ttf
-        - asset: fonts/Poppins-SemiBold.ttf
-        - asset: fonts/Poppins-SemiBoldItalic.ttf
-          style: italic
+        - asset: fonts/Poppins-Bold.ttf
+        - asset: fonts/Poppins-Medium.ttf
+        - asset: fonts/Poppins-Light.ttf
+        - asset: fonts/Poppins-Italic.ttf
         - asset: fonts/Poppins-Thin.ttf
-        - asset: fonts/Poppins-ThinItalic.ttf
-          style: italic
+        - asset: fonts/Poppins-ExtraBold.ttf
+        - asset: fonts/Poppins-SemiBold.ttf
     - family: Inter
       fonts:
-        - asset: fonts/Inter-Black.ttf
-        - asset: fonts/Inter-BlackItalic.ttf
-          style: italic
-        - asset: fonts/Inter-Bold.ttf
-        - asset: fonts/Inter-BoldItalic.ttf
-          style: italic
-        - asset: fonts/Inter-ExtraBold.ttf
-        - asset: fonts/Inter-ExtraBoldItalic.ttf
-          style: italic
-        - asset: fonts/Inter-ExtraLight.ttf
-        - asset: fonts/Inter-ExtraLightItalic.ttf
-          style: italic
-        - asset: fonts/Inter-Italic.ttf
-          style: italic
-        - asset: fonts/Inter-Light.ttf
-        - asset: fonts/Inter-LightItalic.ttf
-          style: italic
-        - asset: fonts/Inter-Medium.ttf
-        - asset: fonts/Inter-MediumItalic.ttf
-          style: italic
         - asset: fonts/Inter-Regular.ttf
-        - asset: fonts/Inter-SemiBold.ttf
-        - asset: fonts/Inter-SemiBoldItalic.ttf
-          style: italic
-        - asset: fonts/Inter-Thin.ttf
-        - asset: fonts/Inter-ThinItalic.ttf
-          style: italic
+        - asset: fonts/Inter-Bold.ttf
+        - asset: fonts/Inter-Light.ttf
+        - asset: fonts/Inter-Italic.ttf
+        - asset: fonts/Inter-Medium.ttf

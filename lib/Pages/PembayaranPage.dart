@@ -1,7 +1,9 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../providers/cart_provider.dart';
-import 'RiwayatPesanan.dart';
 
 class PembayaranPage extends StatefulWidget {
   final CartProvider cartProvider;
@@ -19,9 +21,13 @@ class PembayaranPage extends StatefulWidget {
 
 class _PembayaranPageState extends State<PembayaranPage> {
   PlatformFile? _buktiPembayaran;
+  bool _isUploading = false;
 
   Future<void> _pickFile() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true, // wajib agar bisa ambil bytes
+    );
     if (result != null && result.files.isNotEmpty) {
       setState(() {
         _buktiPembayaran = result.files.first;
@@ -29,13 +35,42 @@ class _PembayaranPageState extends State<PembayaranPage> {
     }
   }
 
-  void _onSudahBayar() {
-    // TODO: Upload file to server or Firestore if needed
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      '/riwayat_pesanan',
-      (route) => false,
-    );
+  Future<void> _onSudahBayar() async {
+    if (_buktiPembayaran == null || _buktiPembayaran!.bytes == null) return;
+
+    setState(() => _isUploading = true);
+
+    try {
+      // encode gambar ke Base64
+      final base64String = base64Encode(_buktiPembayaran!.bytes as Uint8List);
+
+      // ambil satu produk dari keranjang (bisa kamu kembangkan ke list)
+      final firstItem = widget.cartProvider.items.first;
+
+      await FirebaseFirestore.instance.collection('pesanan').add({
+        'produk': firstItem.product.name,
+        'jumlah': firstItem.quantity,
+        'total': widget.totalHarga,
+        'buktiPembayaranBase64': base64String,
+        'status': 'Menunggu Konfirmasi',
+        'waktuPesan': Timestamp.now(),
+      });
+
+      if (mounted) {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/riwayat_pesanan',
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      print('Upload gagal: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gagal upload bukti pembayaran')),
+      );
+    } finally {
+      setState(() => _isUploading = false);
+    }
   }
 
   @override
@@ -48,10 +83,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
         centerTitle: true,
         title: const Text(
           'Pembayaran',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
         ),
         iconTheme: const IconThemeData(color: Colors.black),
       ),
@@ -75,17 +107,13 @@ class _PembayaranPageState extends State<PembayaranPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Transfer ke rekening berikut:',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
+                      const Text('Transfer ke rekening berikut:',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
                       const SizedBox(height: 8),
-                      const Text('Bank: BNI', style: TextStyle(fontSize: 15)),
-                      const Text('Nomor Rekening: 120xxxxxxxx54',
-                          style: TextStyle(fontSize: 15, letterSpacing: 1.2)),
-                      const Text('a.n. CV. Maju Jaya Hasil Tani',
-                          style: TextStyle(fontSize: 15)),
+                      const Text('Bank: BNI'),
+                      const Text('Nomor Rekening: 120xxxxxxxx54'),
+                      const Text('a.n. CV. Maju Jaya Hasil Tani'),
                       const SizedBox(height: 16),
                       const Text('Total Pembayaran:',
                           style: TextStyle(
@@ -105,10 +133,9 @@ class _PembayaranPageState extends State<PembayaranPage> {
                       const Text(
                         '1. Transfer sesuai nominal ke rekening di atas.\n'
                         '2. Simpan bukti pembayaran (foto/scan struk transfer).\n'
-                        '3. Klik tombol "Upload Bukti Pembayaran" dan pilih file bukti pembayaran Anda.\n'
-                        '4. Setelah berhasil upload, klik tombol "Sudah Bayar".\n'
-                        '5. Pesanan akan diproses setelah pembayaran terverifikasi.',
-                        style: TextStyle(fontSize: 14),
+                        '3. Klik tombol "Upload Bukti Pembayaran".\n'
+                        '4. Setelah upload berhasil, klik tombol "Sudah Bayar".\n'
+                        '5. Pesanan akan diproses setelah verifikasi.',
                       ),
                     ],
                   ),
@@ -134,23 +161,28 @@ class _PembayaranPageState extends State<PembayaranPage> {
                 width: 200,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: _buktiPembayaran == null ? null : _onSudahBayar,
+                  onPressed: (_buktiPembayaran == null || _isUploading)
+                      ? null
+                      : _onSudahBayar,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green[700],
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(24),
                     ),
                   ),
-                  child: const Text(
-                    'Sudah Bayar',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
+                  child: _isUploading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          'Sudah Bayar',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
                 ),
               ),
+              const SizedBox(height: 32),
             ],
           ),
         ),
