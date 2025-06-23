@@ -6,7 +6,7 @@ import 'package:pasar_tani_nelayan/Pages/HomeToko.dart';
 import 'package:pasar_tani_nelayan/Pages/TambahProduk.dart';
 import 'package:pasar_tani_nelayan/Pages/BusinessProfilePage.dart';
 import 'package:pasar_tani_nelayan/Pages/EditProfile.dart';
-import 'package:pasar_tani_nelayan/Pages/ProfilUser.dart';
+import 'package:pasar_tani_nelayan/Pages/ProfilToko.dart';
 import 'package:pasar_tani_nelayan/Pages/RiwayatPesanan.dart';
 import 'package:pasar_tani_nelayan/Pages/InformasiAkun.dart';
 import 'package:pasar_tani_nelayan/Pages/AlamatPengguna.dart';
@@ -17,12 +17,14 @@ import 'package:pasar_tani_nelayan/Pages/ProfilUsaha.dart';
 import 'package:pasar_tani_nelayan/Pages/KelolaPesananPage.dart';
 
 import 'package:pasar_tani_nelayan/Pages/IdentitasPemilikPage.dart';
-import 'package:pasar_tani_nelayan/Pages/InformasiAkunUsaha.dart';
+import 'package:pasar_tani_nelayan/Pages/ProfilUser.dart';
 import 'package:pasar_tani_nelayan/Pages/InformasiToko.dart';
 import 'package:pasar_tani_nelayan/Pages/LoginPage.dart';
 import 'package:pasar_tani_nelayan/Pages/RegisterPage.dart';
 import 'package:pasar_tani_nelayan/Pages/Homepage.dart';
 import 'package:pasar_tani_nelayan/Pages/InformasiRekening.dart';
+import 'package:pasar_tani_nelayan/Pages/toko_login_page.dart';
+import 'package:pasar_tani_nelayan/Pages/toko_register_page.dart';
 import 'package:pasar_tani_nelayan/Pages/LoginPageToko.dart'; // <<< IMPORT BARU
 
 void main() async {
@@ -66,20 +68,24 @@ class MyApp extends StatelessWidget {
         '/tambah_produk': (context) => const TambahProduk(),
         '/navigasi_profil_user': (context) => const BusinessProfilePage(),
         '/edit_profile': (context) => const EditProfilePage(),
-        '/profil_user': (context) => const ProfilUserPage(),
+        '/profil_toko': (context) => const ProfilTokoPage(),
         '/riwayat_pesanan': (context) => const RiwayatPesananPage(),
         '/informasi_akun': (context) => const InformasiAkunPage(),
         '/alamat_pengguna': (context) => const AlamatPenggunaPage(),
         '/informasi_bank': (context) => const InformasiBankPage(),
         '/ganti_password': (context) => const GantiPasswordPage(),
         '/edit_profil_user': (context) => const EditProfilUserPage(),
+        '/navigasi_profile_usaha': (context) => const ProfileUsaha(),
+        '/profil_user': (context) => const ProfilUserPage(),
         '/profil_usaha': (context) => const ProfileUsaha(),
-        '/informasi_usaha': (context) => const InformasiAkunUsahaPage(),
+        '/informasi_usaha': (context) => const InformasiAkunPage(),
         '/identitas_pemilik': (context) => const IdentitasPemilikPage(),
         '/informasi_rekening': (context) => const InformasiRekeningPage(),
         '/informasi_toko': (context) => const InformasiTokoPage(),
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
+        '/toko_login': (context) => const TokoLoginPage(),
+        '/toko_register': (context) => const TokoRegisterPage(),
         '/toko_homepage': (context) => const TokoHomePage(),
         '/kelola_pesanan': (context) => const KelolaPesananPage(),
         '/login_page_toko': (context) => const LoginPageToko(),

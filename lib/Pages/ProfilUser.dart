@@ -56,13 +56,27 @@ class _ProfilUserPageState extends State<ProfilUserPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5E9),
+      backgroundColor: const Color(0xFFF9F7E8), // Warna latar belakang
       appBar: AppBar(
-        title: const Text('Profil Anda'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: const Color(0xFFF9F7E8),
         elevation: 0,
-        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+          onPressed: () {
+            Navigator.pop(
+                context); // Kembali ke halaman sebelumnya (ScreenProfileUsaha)
+          },
+        ),
+        title: const Text(
+          'Informasi Akun', // Judul halaman
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            fontFamily: 'Poppins',
+          ),
+        ),
+        centerTitle: true, // Judul di tengah
       ),
       body: SingleChildScrollView(
         child: Column(

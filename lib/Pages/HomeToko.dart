@@ -50,7 +50,7 @@ class _HomeTokoState extends State<TokoHomePage> {
         setState(() => _selectedIndex = 0);
         break;
       case 2: // Untuk tab 'Profil Usaha'
-        await Navigator.pushNamed(context, '/profil_usaha');
+        await Navigator.pushNamed(context, '/profil_toko');
         // Setelah kembali dari ProfileUsaha, reset selectedIndex ke Produk
         setState(() => _selectedIndex = 0);
         break;

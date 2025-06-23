@@ -1,256 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-// Import halaman-halaman yang akan dituju
-import 'package:pasar_tani_nelayan/Pages/Homepage.dart'; // Untuk login pengguna
-import 'package:pasar_tani_nelayan/Pages/LoginPageToko.dart'; // Untuk navigasi ke login toko
-import 'package:pasar_tani_nelayan/Pages/RegisterPage.dart'; // Jika dialog Register terpisah sebagai halaman
-
-class LoginPage extends StatefulWidget {
+class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
-
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  @override
-  void dispose() {
-    _usernameController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
-  void _showForgotPasswordDialog() {
-    final TextEditingController _emailController = TextEditingController();
-    final TextEditingController _newPasswordController =
-        TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Reset Kata Sandi',
-            style: TextStyle(fontFamily: 'Poppins')),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextFormField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                  labelText: 'Masukkan Email',
-                  labelStyle: TextStyle(fontFamily: 'Poppins')),
-              keyboardType: TextInputType.emailAddress,
-              style: const TextStyle(fontFamily: 'Poppins'),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _newPasswordController,
-              decoration: const InputDecoration(
-                  labelText: 'Kata Sandi Baru',
-                  labelStyle: TextStyle(fontFamily: 'Poppins')),
-              obscureText: true,
-              style: const TextStyle(fontFamily: 'Poppins'),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text('Kata sandi berhasil diubah',
-                        style: TextStyle(fontFamily: 'Poppins'))),
-              );
-            },
-            child: const Text('Kirim', style: TextStyle(fontFamily: 'Poppins')),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showRegisterDialog() {
-    // Navigasi ke halaman RegisterPage
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const RegisterPage()));
-    // Jika Anda ingin tetap menggunakan dialog untuk register, gunakan kode di bawah ini:
-    /*
-    final TextEditingController _newUsernameController = TextEditingController();
-    final TextEditingController _newEmailController = TextEditingController();
-    final TextEditingController _newPasswordController = TextEditingController();
-    final GlobalKey<FormState> _registerFormKey = GlobalKey<FormState>();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Buat Akun Baru'),
-        content: Form(
-          key: _registerFormKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: _newUsernameController,
-                decoration: const InputDecoration(labelText: 'Nama Pengguna'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Nama Pengguna wajib diisi';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _newEmailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Email wajib diisi';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _newPasswordController,
-                decoration: const InputDecoration(labelText: 'Kata Sandi'),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Kata Sandi wajib diisi';
-                  } else if (value.length < 8 || !value.contains(RegExp(r'[A-Z]'))) {
-                    return 'Minimal 8 huruf & ada huruf kapital';
-                  }
-                  return null;
-                },
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              if (_registerFormKey.currentState!.validate()) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Akun berhasil dibuat, silakan login.')),
-                );
-              }
-            },
-            child: const Text('Buat Akun'),
-          ),
-        ],
-      ),
-    );
-    */
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF9E5),
       body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              const SizedBox(height: 60),
-              Center(
-                child: Image.asset('assets/LogoPasarTani.png', width: 200),
-              ),
-              const SizedBox(height: 40),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Column(
-                  children: [
-                    _buildTextField(
-                      controller: _usernameController,
-                      icon: Icons.person,
-                      hint: 'Nama Pengguna atau Email atau No. Telp',
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Mohon masukkan informasi login';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      controller: _passwordController,
-                      icon: Icons.lock,
-                      hint: 'Kata Sandi',
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Mohon masukkan kata sandi';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF5C6E3B),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 40, vertical: 12),
-                      ),
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          // Navigasi ke homepage untuk pengguna biasa
-                          Navigator.pushReplacementNamed(context, 'homepage');
-                        }
-                      },
-                      child: const Text(
-                        'Masuk',
-                        style: TextStyle(
-                            color: Colors.white, fontFamily: 'Poppins'),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextButton(
-                      onPressed: _showForgotPasswordDialog,
-                      child: const Text('Lupa Kata Sandi',
-                          style: TextStyle(
-                              color: Colors.black87, fontFamily: 'Poppins')),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        // Navigasi ke halaman login toko
-                        Navigator.pushReplacementNamed(
-                            context, '/login_page_toko');
-                      },
-                      child: const Text('Masuk Sebagai Toko',
-                          style: TextStyle(
-                              color: Colors.black87, fontFamily: 'Poppins')),
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              Container(
+        child: Column(
+          children: [
+            const SizedBox(height: 60),
+            Center(child: Image.asset('assets/LogoPasarTani.png', width: 200)),
+            const SizedBox(height: 40),
+            const Expanded(flex: 5, child: LoginForm()),
+            Expanded(
+              flex: 1,
+              child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 color: const Color(0xFF7D9250),
                 child: Center(
                   child: GestureDetector(
-                    onTap: _showRegisterDialog,
+                    onTap: () {
+                      Navigator.pushNamed(context, '/register');
+                    },
                     child: RichText(
                       text: const TextSpan(
                         text: 'Belum memiliki akun? ',
-                        style: TextStyle(
-                            color: Colors.black, fontFamily: 'Poppins'),
+                        style: TextStyle(color: Colors.black),
                         children: [
                           TextSpan(
                             text: 'Buat Baru',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               decoration: TextDecoration.underline,
-                              fontFamily: 'Poppins',
                             ),
                           ),
                         ],
@@ -259,8 +44,125 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class LoginForm extends StatefulWidget {
+  const LoginForm({super.key});
+
+  @override
+  State<LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  bool isLoading = false;
+  String? errorMessage;
+
+  Future<void> _login() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    try {
+      final email = _usernameController.text.trim();
+      final password = _passwordController.text.trim();
+
+      final snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .where('password', isEqualTo: password)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        Navigator.pushReplacementNamed(context, 'homepage');
+      } else {
+        setState(() {
+          errorMessage = 'Email atau password salah';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Terjadi kesalahan: $e';
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Column(
+          children: [
+            _buildTextField(
+              controller: _usernameController,
+              icon: Icons.person,
+              hint: 'Email',
+              validator: (value) =>
+                  (value == null || value.isEmpty) ? 'Wajib diisi' : null,
+            ),
+            const SizedBox(height: 16),
+            _buildTextField(
+              controller: _passwordController,
+              icon: Icons.lock,
+              hint: 'Kata Sandi',
+              obscureText: true,
+              validator: (value) =>
+                  (value == null || value.isEmpty) ? 'Wajib diisi' : null,
+            ),
+            const SizedBox(height: 10),
+            if (errorMessage != null)
+              Text(errorMessage!, style: const TextStyle(color: Colors.red)),
+            const SizedBox(height: 20),
+            isLoading
+                ? const CircularProgressIndicator()
+                : ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF5C6E3B),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 40, vertical: 12),
+                    ),
+                    onPressed: _login,
+                    child: const Text('Masuk',
+                        style: TextStyle(color: Colors.white)),
+                  ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Fitur lupa sandi belum tersedia')),
+                );
+              },
+              child: const Text('Lupa Kata Sandi',
+                  style: TextStyle(color: Colors.black87)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, '/toko_login');
+              },
+              child: const Text('Masuk Sebagai Toko',
+                  style: TextStyle(color: Colors.black87)),
+            ),
+          ],
         ),
       ),
     );
@@ -277,11 +179,8 @@ class _LoginPageState extends State<LoginPage> {
       controller: controller,
       obscureText: obscureText,
       validator: validator,
-      style: const TextStyle(fontFamily: 'Poppins'), // Tambahkan fontFamily
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle:
-            const TextStyle(fontFamily: 'Poppins'), // Tambahkan fontFamily
         prefixIcon: Icon(icon, color: Colors.grey),
         filled: true,
         fillColor: const Color(0xFFEFEFEF),
