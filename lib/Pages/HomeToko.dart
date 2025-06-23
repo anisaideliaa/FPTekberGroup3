@@ -19,7 +19,7 @@ class _TokoHomePageState extends State<TokoHomePage> {
     });
 
     if (index == 2) {
-      await Navigator.pushNamed(context, '/profil_usaha');
+      await Navigator.pushNamed(context, '/profil_toko');
       setState(() => _selectedIndex = 0);
     }
   }

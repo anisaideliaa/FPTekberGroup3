@@ -14,7 +14,7 @@ class ScreenProfileUsaha extends StatelessWidget {
             const Color(0xFFF9F7E8), // Sesuaikan dengan latar belakang
         elevation: 0, // Hapus bayangan AppBar
         title: const Text(
-          'Profil Usaha',
+          'Profil Anda',
           style: TextStyle(
             color: Colors.black, // Warna teks hitam
             fontWeight: FontWeight.bold,

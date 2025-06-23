@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pasar_tani_nelayan/Pages/ProfilUser.dart';
 import '../models/product.dart';
 import '../providers/cart_provider.dart' as cart;
 import '../services/product_service.dart';
@@ -9,7 +10,7 @@ import '../widgets/map_section.dart';
 import '../widgets/search_bar_widget.dart';
 import 'ProductDetailPage.dart';
 import 'CartPage.dart';
-import 'ProfilUser.dart';
+import 'ProfilToko.dart';
 import 'RiwayatPesanan.dart';
 
 class HomePage extends StatefulWidget {
@@ -28,7 +29,7 @@ class _HomePageState extends State<HomePage> {
           MaterialPageRoute(builder: (_) => const RiwayatPesananPage()));
     if (index == 2)
       Navigator.push(
-          context, MaterialPageRoute(builder: (_) => const ProfilUserPage()));
+          context, MaterialPageRoute(builder: (_) => const Profiluser()));
   }
 
   @override
