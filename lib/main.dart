@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; // HARUS ADA, dari flutterfire configure
+import 'firebase_options.dart';
 
 import 'package:pasar_tani_nelayan/Pages/HomeToko.dart';
 import 'package:pasar_tani_nelayan/Pages/TambahProduk.dart';
@@ -15,7 +15,6 @@ import 'package:pasar_tani_nelayan/Pages/GantiPassword.dart';
 import 'package:pasar_tani_nelayan/Pages/EditProfilUser.dart';
 import 'package:pasar_tani_nelayan/Pages/ProfilUsaha.dart';
 import 'package:pasar_tani_nelayan/Pages/KelolaPesananPage.dart';
-
 import 'package:pasar_tani_nelayan/Pages/IdentitasPemilikPage.dart';
 import 'package:pasar_tani_nelayan/Pages/ProfilUser.dart';
 import 'package:pasar_tani_nelayan/Pages/InformasiToko.dart';
@@ -25,7 +24,8 @@ import 'package:pasar_tani_nelayan/Pages/Homepage.dart';
 import 'package:pasar_tani_nelayan/Pages/InformasiRekening.dart';
 import 'package:pasar_tani_nelayan/Pages/toko_login_page.dart';
 import 'package:pasar_tani_nelayan/Pages/toko_register_page.dart';
-import 'package:pasar_tani_nelayan/Pages/LoginPageToko.dart'; // <<< IMPORT BARU
+import 'package:pasar_tani_nelayan/Pages/LoginPageToko.dart';
+import 'package:pasar_tani_nelayan/Pages/PilihLokasiPage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -89,6 +89,9 @@ class MyApp extends StatelessWidget {
         '/toko_homepage': (context) => const TokoHomePage(),
         '/kelola_pesanan': (context) => const KelolaPesananPage(),
         '/login_page_toko': (context) => const LoginPageToko(),
+
+        // Tambahkan ini
+        '/pilih_lokasi': (context) => PilihLokasiPage(),
       },
     );
   }
