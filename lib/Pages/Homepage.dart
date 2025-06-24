@@ -210,8 +210,7 @@ class _HomePageState extends State<HomePage> {
                         id: doc.id,
                         name: data['nama'] ?? '',
                         description: data['deskripsi'] ?? '',
-                        price:
-                            'Rp. ${data['harga']?.toStringAsFixed(0) ?? '0'}',
+                        price: '${data['harga']?.toStringAsFixed(0) ?? '0'}',
                         image: data['imageUrl'] ?? '🛒',
                         category: data['jenis'] ?? '',
                         weight: '${data['berat'] ?? 0} KG',
