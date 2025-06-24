@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../providers/cart_provider.dart';
 import '../widgets/custom_app_bar.dart';
+import 'CheckoutPage.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final Product product;
@@ -15,30 +16,45 @@ class ProductDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F3E7),
       appBar: CustomAppBar(title: 'Detail Produk'),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding:
+            EdgeInsets.symmetric(horizontal: isMobile ? 16 : 64, vertical: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Center(
-                child:
-                    Text(product.image, style: const TextStyle(fontSize: 80))),
-            const SizedBox(height: 16),
+              child: CircleAvatar(
+                radius: isMobile ? 60 : 100,
+                backgroundColor: Colors.white,
+                child: Text(product.image,
+                    style: TextStyle(fontSize: isMobile ? 60 : 80)),
+              ),
+            ),
+            const SizedBox(height: 24),
             Text(product.name,
-                style:
-                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                    fontSize: isMobile ? 22 : 28, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text('Jenis: ${product.category}',
-                style: const TextStyle(fontSize: 16, color: Colors.grey)),
-            const SizedBox(height: 8),
-            Text(product.price,
-                style: const TextStyle(
-                    fontSize: 20,
+            Text('Rp. ${product.price}',
+                style: TextStyle(
+                    fontSize: isMobile ? 20 : 24,
                     color: Colors.green,
                     fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.category, size: 16, color: Colors.grey),
+                const SizedBox(width: 6),
+                Text(product.category,
+                    style: const TextStyle(fontSize: 14, color: Colors.grey)),
+              ],
+            ),
             const SizedBox(height: 16),
             const Text('Deskripsi Produk',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
@@ -46,43 +62,71 @@ class ProductDetailPage extends StatelessWidget {
             Text(product.description,
                 style: const TextStyle(fontSize: 14, height: 1.5)),
             const SizedBox(height: 8),
-            Text('Berat: ${product.weight}',
+            Text('Berat: ${product.weight} gram',
                 style: const TextStyle(fontSize: 14)),
-            Text('Toko: ${product.seller}',
-                style: const TextStyle(fontSize: 14)),
-            const SizedBox(height: 24),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.store, size: 16, color: Colors.grey),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(product.seller,
+                      style: const TextStyle(fontSize: 13, color: Colors.grey)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
+                  child: OutlinedButton.icon(
                     onPressed: () {
                       cartProvider.addToCart(product);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                            content: Text('Ditambahkan ke keranjang'),
-                            backgroundColor: Colors.green[700]),
+                          content: const Text('Ditambahkan ke keranjang'),
+                          backgroundColor: Colors.green[700],
+                        ),
                       );
                     },
-                    child: const Text('Keranjang'),
+                    icon: const Icon(Icons.shopping_cart, color: Colors.green),
+                    label: const Text('Keranjang',
+                        style: TextStyle(color: Colors.green)),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: const BorderSide(color: Colors.green),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: ElevatedButton(
+                  child: ElevatedButton.icon(
                     onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text('Produk dibeli'),
-                            backgroundColor: Colors.green[700]),
+                      cartProvider.clearCart();
+                      cartProvider.addToCart(product);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CheckoutPage(
+                            cartProvider: cartProvider,
+                          ),
+                        ),
                       );
                     },
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green[700]),
-                    child: const Text(
+                    icon: const Icon(Icons.payment),
+                    label: const Text(
                       'Beli Sekarang',
-                      style: TextStyle(
-                        color: Colors.white, // warna tulisan putih
-                        fontWeight: FontWeight.bold,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green[700],
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                   ),

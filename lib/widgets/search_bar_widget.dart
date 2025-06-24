@@ -45,6 +45,7 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
                   borderSide: BorderSide.none,
                 ),
               ),
+              onSubmitted: (_) => _submitSearch(),
             ),
           ),
           const SizedBox(width: 8),
@@ -54,9 +55,8 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
             onPressed: _submitSearch,
           ),
           const SizedBox(width: 8),
-          // Cart
+          // Cart with badge
           Stack(
-            alignment: Alignment.topRight,
             children: [
               IconButton(
                 icon: Icon(Icons.shopping_cart, color: Colors.green[700]),
@@ -64,20 +64,27 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
               ),
               if (widget.cartProvider.itemCount > 0)
                 Positioned(
-                  right: 6,
-                  top: 6,
+                  right: 4,
+                  top: 4,
                   child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: const BoxDecoration(
                       color: Colors.red,
                       shape: BoxShape.circle,
                     ),
-                    child: Text(
-                      '${widget.cartProvider.itemCount}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
+                    constraints: const BoxConstraints(
+                      minWidth: 20,
+                      minHeight: 20,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${widget.cartProvider.itemCount}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),

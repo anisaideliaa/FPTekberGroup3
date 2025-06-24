@@ -13,7 +13,8 @@ class CartProvider extends ChangeNotifier {
 
   List<CartItem> get items => _items;
 
-  int get itemCount => _items.length;
+  // ✅ Menghitung total kuantitas, bukan jenis
+  int get itemCount => _items.fold(0, (sum, item) => sum + item.quantity);
 
   double get totalPrice {
     double total = 0;
@@ -54,5 +55,5 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void clear() => clearCart(); // Alias supaya bisa pakai clear()
+  void clear() => clearCart(); // alias
 }

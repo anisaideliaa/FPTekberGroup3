@@ -24,6 +24,7 @@ class _HomePageState extends State<HomePage> {
   final cart.CartProvider cartProvider = cart.CartProvider();
   int _selectedIndex = 0;
   String searchQuery = '';
+  String? _filterOption;
 
   void _onItemTapped(int index) async {
     setState(() => _selectedIndex = index);
@@ -44,67 +45,119 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final crossAxisCount = screenWidth >= 1200
+        ? 4
+        : screenWidth >= 800
+            ? 3
+            : 2;
+    final aspectRatio = screenWidth >= 1200
+        ? 0.7
+        : screenWidth >= 800
+            ? 0.75
+            : 0.62;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F3E7),
       appBar: CustomAppBar(title: 'Beranda'),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SearchBarWidget(
-              cartProvider: cartProvider,
-              onCartTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => CartPage(cartProvider: cartProvider),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SearchBarWidget(
+                cartProvider: cartProvider,
+                onCartTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CartPage(cartProvider: cartProvider),
+                    ),
+                  );
+                  setState(() {}); // ✅ update badge setelah balik dari CartPage
+                },
+                onSearchSubmit: (value) {
+                  setState(() {
+                    searchQuery = value.toLowerCase();
+                  });
+                },
+              ),
+              const SizedBox(height: 12),
+              MapSection(),
+              const SizedBox(height: 20),
+              const Text(
+                'Untuk Anda',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
                 ),
               ),
-              onSearchSubmit: (value) {
-                setState(() {
-                  searchQuery = value.toLowerCase();
-                });
-              },
-            ),
-            MapSection(),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              const SizedBox(height: 12),
+              const Text(
+                'Filter Berdasarkan:',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+              const SizedBox(height: 6),
+              Row(
                 children: [
-                  const Text('Untuk Anda',
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins')),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey[400]!),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: const [
-                        Icon(Icons.tune, size: 16, color: Colors.grey),
-                        SizedBox(width: 4),
-                        Text('Filter Produk Yang Anda Cari',
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                                fontFamily: 'Poppins')),
-                        Icon(Icons.keyboard_arrow_down,
-                            size: 16, color: Colors.grey),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      value: _filterOption,
+                      hint: const Text(
+                        'Pilih Filter',
+                        style: TextStyle(fontFamily: 'Poppins', fontSize: 12),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                            value: 'terendah', child: Text('Harga Terendah')),
+                        DropdownMenuItem(
+                            value: 'tertinggi', child: Text('Harga Tertinggi')),
                       ],
+                      onChanged: (value) {
+                        setState(() {
+                          _filterOption = value;
+                        });
+                      },
                     ),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[300],
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _filterOption = null;
+                      });
+                    },
+                    child: const Text('Reset Filter',
+                        style: TextStyle(fontFamily: 'Poppins', fontSize: 12)),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: StreamBuilder<QuerySnapshot>(
+              const SizedBox(height: 20),
+              StreamBuilder<QuerySnapshot>(
                 stream: ProductService().ambilSemuaProduk(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting)
@@ -116,12 +169,21 @@ class _HomePageState extends State<HomePage> {
                         child: Text('Belum ada produk.',
                             style: TextStyle(fontFamily: 'Poppins')));
 
-                  final produkList = snapshot.data!.docs.where((doc) {
+                  List<QueryDocumentSnapshot> produkList =
+                      snapshot.data!.docs.where((doc) {
                     final data = doc.data() as Map<String, dynamic>;
                     final namaProduk =
                         (data['nama'] ?? '').toString().toLowerCase();
                     return namaProduk.contains(searchQuery);
                   }).toList();
+
+                  if (_filterOption == 'terendah') {
+                    produkList.sort(
+                        (a, b) => (a['harga'] ?? 0).compareTo(b['harga'] ?? 0));
+                  } else if (_filterOption == 'tertinggi') {
+                    produkList.sort(
+                        (a, b) => (b['harga'] ?? 0).compareTo(a['harga'] ?? 0));
+                  }
 
                   if (produkList.isEmpty) {
                     return const Center(
@@ -134,12 +196,11 @@ class _HomePageState extends State<HomePage> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: produkList.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 12,
-                      childAspectRatio: 0.62,
+                      childAspectRatio: aspectRatio,
                     ),
                     itemBuilder: (context, index) {
                       final doc = produkList[index];
@@ -160,8 +221,8 @@ class _HomePageState extends State<HomePage> {
 
                       return ProductCard(
                         product: product,
-                        onTap: () {
-                          Navigator.push(
+                        onTap: () async {
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => ProductDetailPage(
@@ -170,15 +231,17 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                           );
+                          setState(
+                              () {}); // ✅ refresh badge setelah kembali dari detail
                         },
                       );
                     },
                   );
                 },
               ),
-            ),
-            const SizedBox(height: 100),
-          ],
+              const SizedBox(height: 100),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: Container(

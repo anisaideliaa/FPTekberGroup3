@@ -3,81 +3,102 @@ import '../models/product.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
-  final VoidCallback? onTap;
+  final VoidCallback onTap;
 
   const ProductCard({
     Key? key,
     required this.product,
-    this.onTap,
+    required this.onTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
       child: Container(
-        margin: const EdgeInsets.all(6),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.green.shade200),
-          borderRadius: BorderRadius.circular(12),
+          color: const Color(0xFFEFF6EF),
+          border: Border.all(color: Colors.green.shade100),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Label kategori
-            if (product.category.isNotEmpty)
-              Container(
-                margin: const EdgeInsets.only(top: 8, left: 8),
+            // Gambar produk
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.green[50],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: product.image.startsWith('http')
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          product.image,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Center(
+                        child: Text(
+                          product.image,
+                          style: const TextStyle(fontSize: 36),
+                        ),
+                      ),
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Kategori
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.green[200],
-                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.green[100],
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   product.category,
                   style: const TextStyle(
                     fontSize: 11,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
                     color: Colors.green,
                   ),
                 ),
               ),
-            Expanded(
-              child: Center(
-                child: product.image.startsWith('assets/')
-                    ? Image.asset(product.image,
-                        fit: BoxFit.contain, height: 60)
-                    : Text(product.image, style: const TextStyle(fontSize: 40)),
-              ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+
+            const SizedBox(height: 6),
+
+            // Nama Produk
+            Align(
+              alignment: Alignment.centerLeft,
               child: Text(
                 product.name,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(
-                product.price,
                 style: const TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: Text(
-                product.seller,
-                style: const TextStyle(fontSize: 11, color: Colors.black54),
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
+              ),
+            ),
+
+            // Harga
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                product.price,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green[700],
+                ),
               ),
             ),
           ],

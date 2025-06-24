@@ -14,9 +14,7 @@ class _TambahProdukState extends State<TambahProduk> {
   final _namaProdukController = TextEditingController();
   final _deskripsiProdukController = TextEditingController();
   final _hargaProdukController = TextEditingController();
-  final _potonganHargaController = TextEditingController();
-  final _jumlahDisplayController = TextEditingController();
-  final _jumlahGudangController = TextEditingController();
+  final _jumlahProdukController = TextEditingController();
   final _beratProdukController = TextEditingController();
   String? _jenisProduk;
 
@@ -31,9 +29,7 @@ class _TambahProdukState extends State<TambahProduk> {
     _namaProdukController.dispose();
     _deskripsiProdukController.dispose();
     _hargaProdukController.dispose();
-    _potonganHargaController.dispose();
-    _jumlahDisplayController.dispose();
-    _jumlahGudangController.dispose();
+    _jumlahProdukController.dispose();
     _beratProdukController.dispose();
     super.dispose();
   }
@@ -45,10 +41,10 @@ class _TambahProdukState extends State<TambahProduk> {
         'deskripsi': _deskripsiProdukController.text,
         'jenis': _jenisProduk,
         'harga': double.parse(_hargaProdukController.text),
-        'potongan': double.tryParse(_potonganHargaController.text) ?? 0,
-        'display': int.tryParse(_jumlahDisplayController.text) ?? 0,
-        'gudang': int.tryParse(_jumlahGudangController.text) ?? 0,
+        'display': int.tryParse(_jumlahProdukController.text) ?? 0,
+        'gudang': 0, // default
         'berat': double.tryParse(_beratProdukController.text) ?? 0,
+        'potongan': 0, // default
         'createdAt': FieldValue.serverTimestamp(),
       };
 
@@ -60,16 +56,10 @@ class _TambahProdukState extends State<TambahProduk> {
           );
           Navigator.pop(context);
         }
-      } on FirebaseException catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Gagal menambahkan produk: ${e.message}')),
-          );
-        }
       } catch (e) {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Terjadi kesalahan tidak dikenal')),
+            SnackBar(content: Text('Gagal menambahkan produk: $e')),
           );
         }
       }
@@ -79,64 +69,100 @@ class _TambahProdukState extends State<TambahProduk> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F3E7),
       appBar: AppBar(
         title: const Text('Tambah Produk'),
+        backgroundColor: const Color(0xFFF5F3E7),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.green),
+        titleTextStyle: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.green,
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTextField('Nama Produk', _namaProdukController,
-                  TextInputType.text, true),
-              _buildTextField('Deskripsi Produk', _deskripsiProdukController,
-                  TextInputType.multiline, false,
-                  maxLines: 3),
-              _buildDropdownJenisProduk(),
-              _buildTextField('Harga Produk', _hargaProdukController,
-                  TextInputType.number, true),
-              const SizedBox(height: 8),
-              ElevatedButton(
-                onPressed: () {
-                  // Placeholder: logika untuk melihat harga pasar
-                },
-                child: const Text('Lihat Harga Pasar'),
+        padding: const EdgeInsets.all(20.0),
+        child: Card(
+          elevation: 4,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _formTitle('Informasi Produk'),
+                  _buildTextField('Nama Produk', _namaProdukController,
+                      TextInputType.text, true),
+                  _buildTextField(
+                      'Deskripsi Produk',
+                      _deskripsiProdukController,
+                      TextInputType.multiline,
+                      false,
+                      maxLines: 3),
+                  _buildDropdownJenisProduk(),
+                  const SizedBox(height: 16),
+                  _formTitle('Harga & Stok'),
+                  _buildTextField('Harga Produk', _hargaProdukController,
+                      TextInputType.number, true),
+                  _buildTextField('Jumlah Produk Display',
+                      _jumlahProdukController, TextInputType.number, false),
+                  _buildTextField('Berat Produk (gram)', _beratProdukController,
+                      TextInputType.number, false),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _simpanProduk,
+                      icon: const Icon(Icons.save),
+                      label: const Text('Simpan Produk'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green[700],
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              _buildTextField('Potongan Harga Grosir', _potonganHargaController,
-                  TextInputType.number, false),
-              _buildTextField('Jumlah Produk Display', _jumlahDisplayController,
-                  TextInputType.number, false),
-              _buildTextField('Jumlah Produk Gudang', _jumlahGudangController,
-                  TextInputType.number, false),
-              _buildTextField('Berat Produk', _beratProdukController,
-                  TextInputType.number, false),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _simpanProduk,
-                  child: const Text('Simpan'),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 
+  Widget _formTitle(String title) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+      );
+
   Widget _buildTextField(String label, TextEditingController controller,
       TextInputType keyboardType, bool required,
       {int maxLines = 1}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
-        decoration: InputDecoration(labelText: label),
         controller: controller,
         keyboardType: keyboardType,
         maxLines: maxLines,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        ),
         validator: (value) {
           if (required && (value == null || value.isEmpty)) {
             return '$label tidak boleh kosong';
@@ -154,9 +180,12 @@ class _TambahProdukState extends State<TambahProduk> {
 
   Widget _buildDropdownJenisProduk() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.only(bottom: 16),
       child: DropdownButtonFormField<String>(
-        decoration: const InputDecoration(labelText: 'Jenis Produk'),
+        decoration: InputDecoration(
+          labelText: 'Jenis Produk',
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        ),
         value: _jenisProduk,
         items: <String>[
           'Pilih Jenis',
@@ -169,7 +198,7 @@ class _TambahProdukState extends State<TambahProduk> {
           'Pendukung Perikanan',
           'Alat Perikanan',
           'Ikan'
-        ].map<DropdownMenuItem<String>>((String value) {
+        ].map((value) {
           return DropdownMenuItem<String>(
             value: value,
             child: Text(value),
