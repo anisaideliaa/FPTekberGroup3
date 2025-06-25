@@ -1,5 +1,9 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import '../services/product_service.dart';
 
 class EditProdukPage extends StatefulWidget {
@@ -20,6 +24,8 @@ class _EditProdukPageState extends State<EditProdukPage> {
   final _jumlahDisplayController = TextEditingController();
   final _beratController = TextEditingController();
   String? _jenisProduk;
+  String? _currentBase64;
+  PlatformFile? _fileBaru;
 
   @override
   void initState() {
@@ -30,6 +36,7 @@ class _EditProdukPageState extends State<EditProdukPage> {
     _jumlahDisplayController.text = widget.data['display'].toString();
     _beratController.text = widget.data['berat'].toString();
     _jenisProduk = widget.data['jenis'] ?? 'Pilih Jenis';
+    _currentBase64 = widget.data['imageBase64'];
   }
 
   @override
@@ -42,8 +49,26 @@ class _EditProdukPageState extends State<EditProdukPage> {
     super.dispose();
   }
 
+  Future<void> _pilihGambarBaru() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
+    if (result != null && result.files.isNotEmpty) {
+      setState(() {
+        _fileBaru = result.files.first;
+      });
+    }
+  }
+
   Future<void> _updateProduk() async {
     if (_formKey.currentState!.validate()) {
+      String finalBase64 = _currentBase64 ?? '';
+
+      if (_fileBaru != null && _fileBaru!.bytes != null) {
+        finalBase64 = base64Encode(_fileBaru!.bytes!);
+      }
+
       final updatedProduct = {
         'nama': _namaController.text,
         'deskripsi': _deskripsiController.text,
@@ -51,6 +76,7 @@ class _EditProdukPageState extends State<EditProdukPage> {
         'harga': double.tryParse(_hargaController.text) ?? 0,
         'display': int.tryParse(_jumlahDisplayController.text) ?? 0,
         'berat': double.tryParse(_beratController.text) ?? 0,
+        'imageBase64': finalBase64,
         'updatedAt': FieldValue.serverTimestamp(),
       };
 
@@ -77,6 +103,9 @@ class _EditProdukPageState extends State<EditProdukPage> {
 
   @override
   Widget build(BuildContext context) {
+    final Uint8List? imageBytes = _fileBaru?.bytes ??
+        (_currentBase64 != null ? base64Decode(_currentBase64!) : null);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F3E7),
       appBar: AppBar(
@@ -111,12 +140,38 @@ class _EditProdukPageState extends State<EditProdukPage> {
                       maxLines: 3),
                   _buildDropdownJenisProduk(),
                   const SizedBox(height: 16),
+                  _formTitle('Gambar Produk'),
+                  ElevatedButton.icon(
+                    onPressed: _pilihGambarBaru,
+                    icon: const Icon(Icons.upload_file),
+                    label: Text(_fileBaru == null
+                        ? 'Ganti Gambar Produk'
+                        : 'Dipilih: ${_fileBaru!.name}'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[200],
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  if (imageBytes != null)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.memory(
+                        imageBytes,
+                        height: 150,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  const SizedBox(height: 24),
                   _formTitle('Harga & Stok'),
                   _buildTextField('Harga Produk', _hargaController,
                       TextInputType.number, true),
                   _buildTextField('Jumlah Produk Display',
                       _jumlahDisplayController, TextInputType.number, false),
-                  _buildTextField('Berat Produk (gram)', _beratController,
+                  _buildTextField('Berat Produk (KG)', _beratController,
                       TextInputType.number, false),
                   const SizedBox(height: 24),
                   SizedBox(
@@ -217,7 +272,6 @@ class _EditProdukPageState extends State<EditProdukPage> {
       'Ikan'
     ];
 
-    // jika jenis tidak ada di list, tambahkan supaya tidak error
     if (!jenisList.contains(_jenisProduk)) {
       jenisList.insert(0, _jenisProduk ?? 'Pilih Jenis');
     }

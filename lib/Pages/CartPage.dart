@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../providers/cart_provider.dart';
 import 'CheckoutPage.dart';
@@ -12,6 +13,21 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
+  Widget _buildImage(String image) {
+    if (image.startsWith('http')) {
+      return Image.network(image, fit: BoxFit.cover);
+    } else if (image.length > 100) {
+      try {
+        final bytes = base64Decode(image);
+        return Image.memory(bytes, fit: BoxFit.cover);
+      } catch (_) {
+        return const Icon(Icons.broken_image);
+      }
+    } else {
+      return Text(image, style: const TextStyle(fontSize: 30));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,12 +134,16 @@ class _CartPageState extends State<CartPage> {
                                   width: 60,
                                   height: 60,
                                   decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(8)),
-                                  child: Center(
-                                      child: Text(cartItem.product.image,
-                                          style:
-                                              const TextStyle(fontSize: 30))),
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Center(
+                                      child:
+                                          _buildImage(cartItem.product.image),
+                                    ),
+                                  ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(

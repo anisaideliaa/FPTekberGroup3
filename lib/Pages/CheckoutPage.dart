@@ -1,8 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../providers/cart_provider.dart';
 import 'PembayaranPage.dart';
 import 'PilihLokasiPage.dart';
-import 'package:latlong2/latlong.dart';
 
 class CheckoutPage extends StatefulWidget {
   final CartProvider cartProvider;
@@ -17,6 +17,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
   bool gunakanKupon = false;
   String selectedAddress = 'Belum dipilih';
 
+  Widget _buildImageWidget(String image) {
+    if (image.startsWith('http')) {
+      return Image.network(image, fit: BoxFit.cover);
+    } else if (image.length > 100) {
+      try {
+        final bytes = base64Decode(image);
+        return Image.memory(bytes, fit: BoxFit.cover);
+      } catch (_) {
+        return const Icon(Icons.broken_image);
+      }
+    } else {
+      return Center(child: Text(image, style: const TextStyle(fontSize: 36)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final shippingFee = 20000;
@@ -24,7 +39,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
     final productTotal = widget.cartProvider.totalPrice;
     final totalPrice = productTotal + shippingFee - shippingDiscount;
-
     final cartItems = widget.cartProvider.items;
 
     return Scaffold(
@@ -190,12 +204,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: cartItem.product.image.startsWith('http')
-                ? Image.network(cartItem.product.image, fit: BoxFit.cover)
-                : Center(
-                    child: Text(cartItem.product.image,
-                        style: const TextStyle(fontSize: 36)),
-                  ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: _buildImageWidget(cartItem.product.image),
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(

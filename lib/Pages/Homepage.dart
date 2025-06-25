@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pasar_tani_nelayan/Pages/ProfilUser.dart';
@@ -10,8 +11,6 @@ import '../widgets/map_section.dart';
 import '../widgets/search_bar_widget.dart';
 import 'ProductDetailPage.dart';
 import 'CartPage.dart';
-import 'ProfilToko.dart';
-import 'RiwayatPesanan.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -75,7 +74,7 @@ class _HomePageState extends State<HomePage> {
                       builder: (_) => CartPage(cartProvider: cartProvider),
                     ),
                   );
-                  setState(() {}); // ✅ update badge setelah balik dari CartPage
+                  setState(() {}); // ✅ refresh badge
                 },
                 onSearchSubmit: (value) {
                   setState(() {
@@ -160,14 +159,18 @@ class _HomePageState extends State<HomePage> {
               StreamBuilder<QuerySnapshot>(
                 stream: ProductService().ambilSemuaProduk(),
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting)
+                  if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
-                  if (snapshot.hasError)
+                  }
+                  if (snapshot.hasError) {
                     return Text('Terjadi kesalahan: ${snapshot.error}');
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty)
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return const Center(
-                        child: Text('Belum ada produk.',
-                            style: TextStyle(fontFamily: 'Poppins')));
+                      child: Text('Belum ada produk.',
+                          style: TextStyle(fontFamily: 'Poppins')),
+                    );
+                  }
 
                   List<QueryDocumentSnapshot> produkList =
                       snapshot.data!.docs.where((doc) {
@@ -205,13 +208,14 @@ class _HomePageState extends State<HomePage> {
                     itemBuilder: (context, index) {
                       final doc = produkList[index];
                       final data = doc.data() as Map<String, dynamic>;
+                      final imageBase64 = data['imageBase64'] as String?;
 
                       final product = Product(
                         id: doc.id,
                         name: data['nama'] ?? '',
                         description: data['deskripsi'] ?? '',
-                        price: '${data['harga']?.toStringAsFixed(0) ?? '0'}',
-                        image: data['imageUrl'] ?? '🛒',
+                        price: 'Rp ${data['harga']?.toStringAsFixed(0) ?? '0'}',
+                        image: imageBase64 ?? '🛒',
                         category: data['jenis'] ?? '',
                         weight: '${data['berat'] ?? 0} KG',
                         seller: data['penjual'] ??
@@ -230,8 +234,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                           );
-                          setState(
-                              () {}); // ✅ refresh badge setelah kembali dari detail
+                          setState(() {}); // Refresh badge/cart
                         },
                       );
                     },

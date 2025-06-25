@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 
@@ -13,8 +14,6 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
@@ -27,7 +26,6 @@ class ProductCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            // Gambar produk
             Expanded(
               child: Container(
                 width: double.infinity,
@@ -35,25 +33,10 @@ class ProductCard extends StatelessWidget {
                   color: Colors.green[50],
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: product.image.startsWith('http')
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          product.image,
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                    : Center(
-                        child: Text(
-                          product.image,
-                          style: const TextStyle(fontSize: 36),
-                        ),
-                      ),
+                child: _buildProductImage(product.image),
               ),
             ),
             const SizedBox(height: 10),
-
-            // Kategori
             Align(
               alignment: Alignment.centerLeft,
               child: Container(
@@ -72,10 +55,7 @@ class ProductCard extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(height: 6),
-
-            // Nama Produk
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -88,8 +68,6 @@ class ProductCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-
-            // Harga
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -105,5 +83,45 @@ class ProductCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildProductImage(String imageData) {
+    try {
+      // Jika string panjang, anggap itu base64
+      if (imageData.length > 100) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.memory(
+            base64Decode(imageData),
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) =>
+                const Icon(Icons.broken_image, size: 32, color: Colors.grey),
+          ),
+        );
+      }
+
+      // Jika URL
+      if (imageData.startsWith('http')) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.network(
+            imageData,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported,
+                size: 32, color: Colors.grey),
+          ),
+        );
+      }
+
+      // Jika emoji atau pendek
+      return Center(
+        child: Text(
+          imageData,
+          style: const TextStyle(fontSize: 36),
+        ),
+      );
+    } catch (_) {
+      return const Icon(Icons.broken_image, size: 32, color: Colors.grey);
+    }
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../widgets/custom_app_bar.dart';
@@ -17,6 +18,36 @@ class RiwayatPesananPage extends StatelessWidget {
         return Colors.grey;
       default:
         return Colors.black;
+    }
+  }
+
+  Widget _buildImage(String image) {
+    if (image.startsWith('http')) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(image, width: 60, height: 60, fit: BoxFit.cover),
+      );
+    } else if (image.length > 100) {
+      try {
+        final bytes = base64Decode(image);
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.memory(bytes, width: 60, height: 60, fit: BoxFit.cover),
+        );
+      } catch (e) {
+        return const Icon(Icons.broken_image, size: 40);
+      }
+    } else {
+      return Container(
+        width: 60,
+        height: 60,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Colors.green[50],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(image, style: const TextStyle(fontSize: 32)),
+      );
     }
   }
 
@@ -47,6 +78,10 @@ class RiwayatPesananPage extends StatelessWidget {
               final data = docs[index].data() as Map<String, dynamic>;
               final docId = docs[index].id;
               final status = data['status'] ?? 'Tidak diketahui';
+              final produk = data['produk'] ?? 'Nama Produk Tidak Ada';
+              final jumlah = data['jumlah'] ?? 0;
+              final total = data['total'] ?? 0;
+              final image = data['imageBase64'] ?? '🛒';
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8),
@@ -55,15 +90,30 @@ class RiwayatPesananPage extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        data['produk'] as String? ?? 'Nama Produk Tidak Ada',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
+                      Row(
+                        children: [
+                          _buildImage(image),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  produk,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text('Jumlah: $jumlah'),
+                                Text('Total: Rp $total'),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 4),
-                      Text('Jumlah: ${data['jumlah'] ?? 0}'),
-                      Text('Total: Rp ${data['total'] ?? 0}'),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [

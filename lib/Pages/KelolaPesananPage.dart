@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -23,6 +24,37 @@ class KelolaPesananPage extends StatelessWidget {
     if (status == 'Menunggu Konfirmasi') return 'Terima Pesanan';
     if (status == 'Pesanan Diproses') return 'Kirim Pesanan';
     return '';
+  }
+
+  Widget _buildImage(String imageBase64) {
+    if (imageBase64.startsWith('http')) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(imageBase64,
+            width: 60, height: 60, fit: BoxFit.cover),
+      );
+    } else if (imageBase64.length > 100) {
+      try {
+        final bytes = base64Decode(imageBase64);
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.memory(bytes, width: 60, height: 60, fit: BoxFit.cover),
+        );
+      } catch (_) {
+        return const Icon(Icons.broken_image, size: 40);
+      }
+    } else {
+      return Container(
+        width: 60,
+        height: 60,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Colors.green[50],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(imageBase64, style: const TextStyle(fontSize: 32)),
+      );
+    }
   }
 
   @override
@@ -54,6 +86,7 @@ class KelolaPesananPage extends StatelessWidget {
               final data = docs[index].data() as Map<String, dynamic>;
               final docId = docs[index].id;
               final status = data['status'];
+              final imageBase64 = data['imageBase64'] ?? '🛒';
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8),
@@ -63,18 +96,32 @@ class KelolaPesananPage extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Produk: ${data['produk']}',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              fontFamily: 'Poppins')),
-                      const SizedBox(height: 4),
-                      Text('Jumlah: ${data['jumlah']} unit',
-                          style: const TextStyle(fontFamily: 'Poppins')),
-                      Text('Total: Rp ${data['total']}',
-                          style: const TextStyle(fontFamily: 'Poppins')),
+                      Row(
+                        children: [
+                          _buildImage(imageBase64),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Produk: ${data['produk']}',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        fontFamily: 'Poppins')),
+                                const SizedBox(height: 4),
+                                Text('Jumlah: ${data['jumlah']} unit',
+                                    style:
+                                        const TextStyle(fontFamily: 'Poppins')),
+                                Text('Total: Rp ${data['total']}',
+                                    style:
+                                        const TextStyle(fontFamily: 'Poppins')),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -150,7 +197,7 @@ class KelolaPesananPage extends StatelessWidget {
           type: BottomNavigationBarType.fixed,
           selectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
           unselectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
-          currentIndex: 1, // Kelola Pesanan
+          currentIndex: 1,
           onTap: (index) async {
             if (index == 0) {
               Navigator.pushReplacementNamed(context, '/toko_homepage');

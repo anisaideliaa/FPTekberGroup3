@@ -1,14 +1,9 @@
-import 'dart:io';
-import 'dart:typed_data'; // Untuk Uint8List
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as p;
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:flutter/foundation.dart'
-    show kIsWeb; // Import ini untuk deteksi web
+import 'dart:convert';
+import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/product_service.dart';
 
 class TambahProduk extends StatefulWidget {
@@ -25,21 +20,9 @@ class _TambahProdukState extends State<TambahProduk> {
   final _hargaProdukController = TextEditingController();
   final _jumlahProdukController = TextEditingController();
   final _beratProdukController = TextEditingController();
-  String? _jenisProduk;
+  String? _jenisProduk = 'Pilih Jenis';
 
-  // Ubah tipe variabel ini untuk mendukung File atau bytes
-  File? _selectedImageFile; // Digunakan untuk pratinjau di non-web
-  Uint8List?
-      _selectedImageBytes; // Digunakan untuk pratinjau dan unggah di web/lainnya
-
-  String? _uploadedImageUrl;
-  bool _isUploading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _jenisProduk = 'Pilih Jenis';
-  }
+  PlatformFile? _gambarProduk;
 
   @override
   void dispose() {
@@ -52,178 +35,22 @@ class _TambahProdukState extends State<TambahProduk> {
   }
 
   Future<void> _pickImage() async {
-    final ImagePicker _picker = ImagePicker();
-    try {
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-
-      if (image != null) {
-        if (kIsWeb) {
-          // Jika di web, baca sebagai bytes langsung
-          final bytes = await image.readAsBytes();
-          setState(() {
-            _selectedImageBytes = bytes;
-            _selectedImageFile = null; // Pastikan ini null
-            _uploadedImageUrl = null;
-          });
-        } else {
-          // Jika di mobile (Android/iOS), gunakan File
-          setState(() {
-            _selectedImageFile = File(image.path);
-            _selectedImageBytes = null; // Pastikan ini null
-            _uploadedImageUrl = null;
-          });
-        }
-      } else {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Tidak ada gambar yang dipilih.')),
-          );
-        }
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error memilih gambar: $e')),
-        );
-      }
-      print('Error picking image: $e');
-    }
-  }
-
-  Future<String?> _uploadImageToFirebase() async {
-    setState(() {
-      _isUploading = true;
-    });
-
-    Uint8List? finalImageBytes;
-    String? originalFileName;
-
-    if (_selectedImageBytes != null) {
-      // Jika gambar dipilih sebagai bytes (misal dari web)
-      finalImageBytes = _selectedImageBytes;
-      originalFileName = 'web_upload_image.jpg'; // Nama default untuk web
-    } else if (_selectedImageFile != null) {
-      // Jika gambar dipilih sebagai File (misal dari mobile)
-      try {
-        finalImageBytes = await _selectedImageFile!.readAsBytes();
-        originalFileName = p.basename(_selectedImageFile!.path);
-      } catch (e) {
-        print('Error reading file bytes: $e');
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Gagal membaca data gambar.')),
-          );
-        }
-        setState(() {
-          _isUploading = false;
-        });
-        return null;
-      }
-    } else {
-      // Ini seharusnya tidak terjadi jika validasi sudah dilakukan
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
+    if (result != null && result.files.isNotEmpty) {
       setState(() {
-        _isUploading = false;
+        _gambarProduk = result.files.first;
       });
-      return null;
-    }
-
-    if (finalImageBytes == null) {
-      setState(() {
-        _isUploading = false;
-      });
-      return null;
-    }
-
-    try {
-      // Kompresi Gambar sebagai bytes
-      Uint8List? compressedBytes = await FlutterImageCompress.compressWithList(
-        finalImageBytes,
-        quality: 80, // Kualitas kompresi: 80% (bisa disesuaikan)
-        format: CompressFormat.jpeg, // Output format: JPEG
-      );
-
-      if (compressedBytes == null) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Gagal mengkompresi gambar.')),
-          );
-        }
-        setState(() {
-          _isUploading = false;
-        });
-        return null;
-      }
-
-      // Unggah Bytes yang Sudah Dikompresi
-      String fileExtension = p.extension(originalFileName ?? '').isNotEmpty
-          ? p.extension(originalFileName!)
-          : '.jpg'; // Fallback jika tidak ada ekstensi
-      String fileName =
-          'products/${DateTime.now().millisecondsSinceEpoch}_product$fileExtension';
-      Reference storageRef = FirebaseStorage.instance.ref().child(fileName);
-
-      UploadTask uploadTask = storageRef.putData(compressedBytes);
-
-      TaskSnapshot snapshot = await uploadTask;
-      String downloadUrl = await snapshot.ref.getDownloadURL();
-
-      setState(() {
-        _uploadedImageUrl = downloadUrl;
-        _isUploading = false;
-      });
-
-      return downloadUrl;
-    } on FirebaseException catch (e) {
-      setState(() {
-        _isUploading = false;
-      });
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal mengunggah gambar: ${e.message}')),
-        );
-      }
-      print('Error uploading image: ${e.code} - ${e.message}');
-      return null;
-    } catch (e) {
-      setState(() {
-        _isUploading = false;
-      });
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Terjadi kesalahan tak terduga: $e')),
-        );
-      }
-      print('Unexpected error in upload process: $e');
-      return null;
     }
   }
 
   void _simpanProduk() async {
     if (_formKey.currentState!.validate()) {
-      if (_selectedImageFile == null && _selectedImageBytes == null) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Silakan pilih gambar produk terlebih dahulu')),
-          );
-        }
-        return;
-      }
-
-      // Unggah gambar terlebih dahulu
-      String? imageUrl =
-          await _uploadImageToFirebase(); // Panggil tanpa parameter
-
-      if (imageUrl == null) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content:
-                    Text('Gagal menyimpan produk karena unggah gambar gagal.')),
-          );
-        }
-        return;
-      }
+      final base64Image = _gambarProduk != null && _gambarProduk!.bytes != null
+          ? base64Encode(_gambarProduk!.bytes!)
+          : '';
 
       final newProduct = {
         'nama': _namaProdukController.text,
@@ -231,11 +58,11 @@ class _TambahProdukState extends State<TambahProduk> {
         'jenis': _jenisProduk,
         'harga': double.parse(_hargaProdukController.text),
         'display': int.tryParse(_jumlahProdukController.text) ?? 0,
-        'gudang': 0, // default
+        'gudang': 0,
         'berat': double.tryParse(_beratProdukController.text) ?? 0,
-        'potongan': 0, // default
-        'imageUrl': imageUrl, // URL gambar yang sudah diunggah
+        'potongan': 0,
         'createdAt': FieldValue.serverTimestamp(),
+        'imageBase64': base64Image,
       };
 
       try {
@@ -295,9 +122,31 @@ class _TambahProdukState extends State<TambahProduk> {
                       maxLines: 3),
                   _buildDropdownJenisProduk(),
                   const SizedBox(height: 16),
-                  _formTitle('Foto Produk'),
-                  _buildImagePickerSection(),
-                  const SizedBox(height: 16),
+                  _formTitle('Gambar Produk'),
+                  ElevatedButton.icon(
+                    onPressed: _pickImage,
+                    icon: const Icon(Icons.upload_file),
+                    label: Text(_gambarProduk == null
+                        ? 'Upload Gambar'
+                        : 'Terpilih: ${_gambarProduk!.name}'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[200],
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  if (_gambarProduk?.bytes != null)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.memory(
+                        _gambarProduk!.bytes!,
+                        height: 150,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  const SizedBox(height: 24),
                   _formTitle('Harga & Stok'),
                   _buildTextField('Harga Produk', _hargaProdukController,
                       TextInputType.number, true),
@@ -309,12 +158,9 @@ class _TambahProdukState extends State<TambahProduk> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: _isUploading ? null : _simpanProduk,
-                      icon: _isUploading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Icon(Icons.save),
-                      label: Text(
-                          _isUploading ? 'Mengunggah...' : 'Simpan Produk'),
+                      onPressed: _simpanProduk,
+                      icon: const Icon(Icons.save),
+                      label: const Text('Simpan Produk'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green[700],
                         foregroundColor: Colors.white,
@@ -331,83 +177,6 @@ class _TambahProdukState extends State<TambahProduk> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildImagePickerSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Logika untuk menampilkan pratinjau gambar
-        (_selectedImageFile != null || _selectedImageBytes != null)
-            ? Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: _selectedImageFile != null
-                      ? Image.file(
-                          _selectedImageFile!,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.memory(
-                          // Gunakan Image.memory untuk bytes
-                          _selectedImageBytes!,
-                          fit: BoxFit.cover,
-                        ),
-                ),
-              )
-            : Container(
-                height: 150,
-                width: 150,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey),
-                ),
-                child: Icon(
-                  Icons.image,
-                  size: 50,
-                  color: Colors.grey[400],
-                ),
-              ),
-        const SizedBox(height: 16),
-        ElevatedButton.icon(
-          onPressed: _pickImage,
-          icon: const Icon(Icons.upload_file),
-          label: const Text('Pilih Foto Produk'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blueAccent,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-        ),
-        if (_isUploading)
-          const Padding(
-            padding: EdgeInsets.only(top: 8.0),
-            child: Row(
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(width: 8),
-                Text('Mengunggah gambar...'),
-              ],
-            ),
-          )
-        else if (_uploadedImageUrl != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Text(
-              'Gambar berhasil diunggah!',
-              style: TextStyle(color: Colors.green[700]),
-            ),
-          ),
-      ],
     );
   }
 

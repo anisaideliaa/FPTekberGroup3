@@ -26,7 +26,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.image,
-      withData: true, // wajib agar bisa ambil bytes
+      withData: true,
     );
     if (result != null && result.files.isNotEmpty) {
       setState(() {
@@ -41,18 +41,17 @@ class _PembayaranPageState extends State<PembayaranPage> {
     setState(() => _isUploading = true);
 
     try {
-      // encode gambar ke Base64
-      final base64String = base64Encode(_buktiPembayaran!.bytes as Uint8List);
-
-      // ambil satu produk dari keranjang (bisa kamu kembangkan ke list)
+      final base64Bukti = base64Encode(_buktiPembayaran!.bytes as Uint8List);
       final firstItem = widget.cartProvider.items.first;
+      final produk = firstItem.product;
 
       await FirebaseFirestore.instance.collection('pesanan').add({
-        'produk': firstItem.product.name,
+        'produk': produk.name,
         'jumlah': firstItem.quantity,
         'total': widget.totalHarga,
-        'buktiPembayaranBase64': base64String,
         'status': 'Menunggu Konfirmasi',
+        'buktiPembayaranBase64': base64Bukti,
+        'imageBase64': produk.image.length > 100 ? produk.image : null,
         'waktuPesan': Timestamp.now(),
       });
 
