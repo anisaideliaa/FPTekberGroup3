@@ -22,6 +22,10 @@ class _PilihLokasiPageState extends State<PilihLokasiPage> {
     super.initState();
     _selectedPosition =
         widget.initialPosition ?? LatLng(-7.2575, 112.7521); // Surabaya
+    // Panggil _updateAddress untuk mendapatkan alamat awal jika initialPosition diberikan
+    if (widget.initialPosition != null) {
+      _updateAddress(_selectedPosition);
+    }
   }
 
   Future<void> _updateAddress(LatLng position) async {
@@ -37,17 +41,19 @@ class _PilihLokasiPageState extends State<PilihLokasiPage> {
         });
       } else {
         setState(() {
-          _address = 'Gagal mengambil alamat';
+          _address = 'Gagal mengambil alamat (Status: ${response.statusCode})';
         });
       }
     } catch (e) {
       setState(() {
-        _address = 'Gagal mengambil alamat';
+        _address = 'Gagal mengambil alamat (Error: $e)';
       });
+      print('Error fetching address: $e'); // Log error untuk debugging
     }
   }
 
-  void _onTap(LatLng tappedPoint) {
+  void _onTap(TapPosition tapPosition, LatLng tappedPoint) {
+    // Perubahan signature onTap
     setState(() {
       _selectedPosition = tappedPoint;
     });
@@ -55,6 +61,16 @@ class _PilihLokasiPageState extends State<PilihLokasiPage> {
   }
 
   void _kirimAlamat() {
+    // Pastikan _address sudah terisi sebelum pop
+    if (_address.contains('Klik lokasi di peta') ||
+        _address.contains('Gagal mengambil alamat')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                'Silakan pilih lokasi yang valid di peta terlebih dahulu.')),
+      );
+      return;
+    }
     Navigator.pop(context, _address);
   }
 
@@ -67,9 +83,9 @@ class _PilihLokasiPageState extends State<PilihLokasiPage> {
           Expanded(
             child: FlutterMap(
               options: MapOptions(
-                center: _selectedPosition,
-                zoom: 13.0,
-                onTap: (_, point) => _onTap(point),
+                initialCenter: _selectedPosition, // <<< Perubahan di sini
+                initialZoom: 13.0, // <<< Perubahan di sini
+                onTap: _onTap, // <<< Perubahan di sini (menyesuaikan signature)
               ),
               children: [
                 TileLayer(

@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart'; // <<< Tambahkan import ini
 import '../services/product_service.dart';
 import 'EditProduk.dart'; // Pastikan path ini benar
-
-// Import halaman yang akan dinavigasi keluar
-// import 'package:pasar_tani_nelayan/pages/KelolaPesananPage.dart'; // Tidak perlu diimpor jika hanya navigasi
-// import 'package:pasar_tani_nelayan/pages/ProfileUsaha.dart'; // Tidak perlu diimpor jika hanya navigasi
 
 class TokoHomePage extends StatefulWidget {
   const TokoHomePage({super.key});
@@ -15,43 +12,26 @@ class TokoHomePage extends StatefulWidget {
 }
 
 class _HomeTokoState extends State<TokoHomePage> {
-  // _selectedIndex di HomeToko ini hanya untuk tab 'Produk'
-  // Karena tab lain akan menavigasi ke halaman terpisah.
   int _selectedIndex =
       0; // Produk (index 0) akan selalu terpilih secara visual di sini.
-
-  // _widgetOptions sekarang hanya berisi konten untuk tab 'Produk'.
-  // Tab lain akan ditangani oleh Navigator.pushNamed.
-  late final List<Widget> _widgetOptions;
 
   @override
   void initState() {
     super.initState();
-    _widgetOptions = <Widget>[
-      _buildProdukSection(), // Index 0: Halaman Produk
-      // Kosongkan atau gunakan placeholder untuk tab lain jika tidak dikelola oleh IndexedStack
-      const SizedBox.shrink(), // Placeholder untuk Kelola Pesanan (Index 1)
-      const SizedBox.shrink(), // Placeholder untuk Profil Usaha (Index 2)
-    ];
   }
 
   void _onItemTapped(int index) async {
-    // Tetapkan index yang dipilih secara visual untuk HomeToko itu sendiri
-    // agar 'Produk' tetap terpilih jika kita kembali.
     setState(() => _selectedIndex = index); // Ini akan selalu 0 di HomeToko
 
     switch (index) {
       case 0: // Produk
-        // Sudah di halaman ini, tidak perlu navigasi
         break;
       case 1: // Untuk tab 'Kelola Pesanan'
         await Navigator.pushNamed(context, '/kelola_pesanan');
-        // Setelah kembali dari KelolaPesananPage, reset selectedIndex ke Produk
         setState(() => _selectedIndex = 0);
         break;
       case 2: // Untuk tab 'Profil Usaha'
         await Navigator.pushNamed(context, '/profil_toko');
-        // Setelah kembali dari ProfileUsaha, reset selectedIndex ke Produk
         setState(() => _selectedIndex = 0);
         break;
     }
@@ -65,21 +45,20 @@ class _HomeTokoState extends State<TokoHomePage> {
       appBar: AppBar(
         title: const Text(
           'CV. Maju Jaya Hasil Tani, Blok M',
-          // Gaya teks AppBar sudah didefinisikan di MaterialApp theme
         ),
         actions: [
-          // Tampilkan tombol tambah hanya jika sedang di tab "Produk" (index 0)
           if (_selectedIndex == 0)
             IconButton(
-              icon: const Icon(
-                  Icons.add), // Warna icon sudah diatur di MaterialApp theme
+              icon: const Icon(Icons.add),
               onPressed: () async {
                 await Navigator.pushNamed(context, '/tambah_produk');
+                // Setelah kembali dari TambahProduk, kita bisa memuat ulang data
+                // agar produk baru langsung terlihat. setState kosong sudah cukup.
+                setState(() {});
               },
             ),
         ],
       ),
-      // Body hanya akan menampilkan _buildProdukSection karena tab lain akan navigasi keluar
       body:
           _buildProdukSection(), // Hanya menampilkan konten produk secara langsung
       bottomNavigationBar: Container(
@@ -97,8 +76,6 @@ class _HomeTokoState extends State<TokoHomePage> {
           type: BottomNavigationBarType.fixed,
           selectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
           unselectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
-          // currentIndex selalu 0 karena 'Produk' adalah satu-satunya tab yang dikelola secara internal.
-          // Tab lain akan menavigasi keluar.
           currentIndex: 0, // Selalu tunjukkan 'Produk' terpilih di HomeToko
           onTap: _onItemTapped,
           items: const <BottomNavigationBarItem>[
@@ -115,8 +92,7 @@ class _HomeTokoState extends State<TokoHomePage> {
     );
   }
 
-  // Widget untuk Halaman Produk (dipindahkan kembali sebagai method)
-  static Widget _buildProdukSection() {
+  Widget _buildProdukSection() {
     return StreamBuilder<QuerySnapshot>(
       stream: ProductService().ambilSemuaProduk(),
       builder: (context, snapshot) {
@@ -161,7 +137,7 @@ class _HomeTokoState extends State<TokoHomePage> {
           itemBuilder: (context, index) {
             final doc = produkList[index];
             final data = doc.data() as Map<String, dynamic>;
-            final imageUrl = data['imageUrl'] as String?;
+            final imageUrl = data['imageUrl'] as String?; // Ambil URL gambar
 
             return GestureDetector(
               onTap: () {
@@ -183,12 +159,14 @@ class _HomeTokoState extends State<TokoHomePage> {
                   padding: const EdgeInsets.all(12.0),
                   child: Row(
                     children: [
+                      // --- Display Image Here ---
                       Container(
-                        width: 60,
-                        height: 60,
+                        width: 80, // Ukuran gambar yang sedikit lebih besar
+                        height: 80,
                         decoration: BoxDecoration(
                           color: Colors.grey[200],
                           borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey.shade300),
                         ),
                         child: imageUrl != null && imageUrl.isNotEmpty
                             ? ClipRRect(
@@ -196,13 +174,30 @@ class _HomeTokoState extends State<TokoHomePage> {
                                 child: Image.network(
                                   imageUrl,
                                   fit: BoxFit.cover,
+                                  loadingBuilder: (BuildContext context,
+                                      Widget child,
+                                      ImageChunkEvent? loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                            : null,
+                                      ),
+                                    );
+                                  },
                                   errorBuilder: (context, error, stackTrace) =>
                                       const Icon(Icons.image_not_supported,
-                                          size: 32, color: Colors.grey),
+                                          size: 40, color: Colors.grey),
                                 ),
                               )
                             : const Icon(Icons.image,
-                                size: 32, color: Colors.grey),
+                                size: 40, color: Colors.grey),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -230,6 +225,13 @@ class _HomeTokoState extends State<TokoHomePage> {
                           ],
                         ),
                       ),
+                      // Tambahkan ikon hapus
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          _confirmDeleteProduct(context, doc.id, imageUrl);
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -241,10 +243,60 @@ class _HomeTokoState extends State<TokoHomePage> {
     );
   }
 
-  // _buildKelolaPesananSection ini tidak lagi menjadi konten di IndexedStack HomeToko,
-  // melainkan harus menjadi isi dari KelolaPesananPage.dart
-  static Widget _buildKelolaPesananSection() {
-    // Placeholder karena KelolaPesananPage akan memiliki UI sendiri
-    return const Center(child: Text("Halaman Kelola Pesanan (Konten Asli)"));
+  // Fungsi untuk konfirmasi penghapusan produk
+  void _confirmDeleteProduct(
+      BuildContext context, String productId, String? imageUrl) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Hapus Produk'),
+          content: const Text('Apakah Anda yakin ingin menghapus produk ini?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Batal'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Hapus', style: TextStyle(color: Colors.red)),
+              onPressed: () async {
+                Navigator.of(context).pop(); // Tutup dialog konfirmasi
+                await _deleteProduct(productId, imageUrl);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Fungsi untuk menghapus produk dari Firestore dan gambarnya dari Storage
+  Future<void> _deleteProduct(String productId, String? imageUrl) async {
+    try {
+      // Hapus gambar dari Firebase Storage jika ada
+      if (imageUrl != null && imageUrl.isNotEmpty) {
+        Reference storageRef = FirebaseStorage.instance.refFromURL(imageUrl);
+        await storageRef.delete();
+        print('Gambar berhasil dihapus dari Storage.');
+      }
+
+      // Hapus dokumen produk dari Firestore
+      await ProductService().hapusProduk(productId);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Produk berhasil dihapus')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menghapus produk: $e')),
+        );
+      }
+      print('Error deleting product: $e');
+    }
   }
 }
