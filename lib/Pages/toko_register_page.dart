@@ -95,9 +95,16 @@ class _TokoRegisterPageState extends State<TokoRegisterPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF9E5),
       appBar: AppBar(
-        title: const Text('Registrasi Toko'),
-        backgroundColor: const Color(0xFF7D9250),
-        foregroundColor: Colors.white,
+        backgroundColor: const Color(0xFF5C6E3B),
+        title: const Text(
+          'Registrasi',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),

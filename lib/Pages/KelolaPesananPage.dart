@@ -112,70 +112,76 @@ class KelolaPesananPage extends StatelessWidget {
                                         fontFamily: 'Poppins')),
                                 const SizedBox(height: 4),
                                 Text('Jumlah: ${data['jumlah']} unit',
-                                    style:
-                                        const TextStyle(fontFamily: 'Poppins')),
+                                    style: const TextStyle(fontFamily: 'Poppins')),
                                 Text('Total: Rp ${data['total']}',
-                                    style:
-                                        const TextStyle(fontFamily: 'Poppins')),
+                                    style: const TextStyle(fontFamily: 'Poppins')),
                               ],
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: _statusColor(status),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              status,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontFamily: 'Poppins'),
-                            ),
-                          ),
-                          if (status == 'Menunggu Konfirmasi' ||
-                              status == 'Pesanan Diproses')
-                            ElevatedButton(
-                              onPressed: () async {
-                                String newStatus = '';
-                                if (status == 'Menunggu Konfirmasi') {
-                                  newStatus = 'Pesanan Diproses';
-                                } else if (status == 'Pesanan Diproses') {
-                                  newStatus = 'Sedang Dikirim';
-                                }
-
-                                if (newStatus.isNotEmpty) {
-                                  await FirebaseFirestore.instance
-                                      .collection('pesanan')
-                                      .doc(docId)
-                                      .update({'status': newStatus});
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          'Status pesanan diubah menjadi "$newStatus"'),
-                                    ),
-                                  );
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
+                      IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: _statusColor(status),
+                                borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
-                                _buttonLabel(status),
-                                style: const TextStyle(fontFamily: 'Poppins'),
+                                status,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontFamily: 'Poppins',
+                                ),
                               ),
                             ),
-                        ],
-                      )
+                            const SizedBox(width: 8),
+                            if (status == 'Menunggu Konfirmasi' || status == 'Pesanan Diproses')
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    String newStatus = '';
+                                    if (status == 'Menunggu Konfirmasi') {
+                                      newStatus = 'Pesanan Diproses';
+                                    } else if (status == 'Pesanan Diproses') {
+                                      newStatus = 'Sedang Dikirim';
+                                    }
+
+                                    if (newStatus.isNotEmpty) {
+                                      await FirebaseFirestore.instance
+                                          .collection('pesanan')
+                                          .doc(docId)
+                                          .update({'status': newStatus});
+
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        content: Text('Status diubah menjadi "$newStatus"'),
+                                      ));
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                  ),
+                                  child: Text(
+                                    _buttonLabel(status),
+                                    style: const TextStyle(fontFamily: 'Poppins'),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),

@@ -53,9 +53,16 @@ class _RegisterPageState extends State<RegisterPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF9E5),
       appBar: AppBar(
-        title: const Text('Registrasi'),
         backgroundColor: const Color(0xFF5C6E3B),
-        foregroundColor: Colors.white,
+        title: const Text(
+          'Registrasi',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -83,8 +90,8 @@ class _RegisterPageState extends State<RegisterPage> {
                 label: 'Kata Sandi',
                 obscureText: true,
                 validator: (value) =>
-                    (value == null || value.length < 6)
-                        ? 'Minimal 6 karakter'
+                    (value == null || value.length < 8)
+                        ? 'Minimal 8 karakter'
                         : null,
               ),
               const SizedBox(height: 20),

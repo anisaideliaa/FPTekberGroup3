@@ -65,6 +65,7 @@ class _LoginFormState extends State<LoginForm> {
   final _passwordController = TextEditingController();
 
   bool isLoading = false;
+  bool _obscurePassword = true;
   String? errorMessage;
 
   Future<void> _login() async {
@@ -119,13 +120,34 @@ class _LoginFormState extends State<LoginForm> {
                   (value == null || value.isEmpty) ? 'Wajib diisi' : null,
             ),
             const SizedBox(height: 16),
-            _buildTextField(
+            TextFormField(
               controller: _passwordController,
-              icon: Icons.lock,
-              hint: 'Kata Sandi',
-              obscureText: true,
+              obscureText: _obscurePassword,
               validator: (value) =>
                   (value == null || value.isEmpty) ? 'Wajib diisi' : null,
+              decoration: InputDecoration(
+                hintText: 'Kata Sandi',
+                prefixIcon: const Icon(Icons.lock, color: Colors.grey),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword
+                        ? Icons.visibility_off
+                        : Icons.visibility,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
+                filled: true,
+                fillColor: const Color(0xFFEFEFEF),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+              ),
             ),
             const SizedBox(height: 10),
             if (errorMessage != null)
@@ -142,19 +164,10 @@ class _LoginFormState extends State<LoginForm> {
                           horizontal: 40, vertical: 12),
                     ),
                     onPressed: _login,
-                    child: const Text('Masuk',
+                    child: const Text('Masuk sebagai Pengguna',
                         style: TextStyle(color: Colors.white)),
                   ),
             const SizedBox(height: 16),
-            TextButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Fitur lupa sandi belum tersedia')),
-                );
-              },
-              child: const Text('Lupa Kata Sandi',
-                  style: TextStyle(color: Colors.black87)),
-            ),
             TextButton(
               onPressed: () {
                 Navigator.pushReplacementNamed(context, '/toko_login');

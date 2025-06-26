@@ -12,6 +12,7 @@ class _TokoLoginPageState extends State<TokoLoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
   bool isLoading = false;
   String? errorMessage;
 
@@ -53,6 +54,7 @@ class _TokoLoginPageState extends State<TokoLoginPage> {
     required String label,
     bool obscure = false,
     TextInputType keyboardType = TextInputType.text,
+    Widget? suffixIcon,
   }) {
     return TextFormField(
       controller: controller,
@@ -63,6 +65,7 @@ class _TokoLoginPageState extends State<TokoLoginPage> {
         labelText: label,
         filled: true,
         fillColor: const Color(0xFFEFEFEF),
+        suffixIcon: suffixIcon,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide.none,
@@ -81,7 +84,7 @@ class _TokoLoginPageState extends State<TokoLoginPage> {
             const SizedBox(height: 60),
             Center(
               child: Image.asset(
-                'assets/LogoPasarTani.png', // Pastikan logo ini tersedia
+                'assets/LogoPasarTani.png',
                 width: 180,
               ),
             ),
@@ -103,7 +106,20 @@ class _TokoLoginPageState extends State<TokoLoginPage> {
                       _buildTextField(
                         controller: _passwordController,
                         label: 'Kata Sandi',
-                        obscure: true,
+                        obscure: _obscurePassword,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
                       ),
                       const SizedBox(height: 10),
                       if (errorMessage != null)
@@ -125,7 +141,7 @@ class _TokoLoginPageState extends State<TokoLoginPage> {
                                     horizontal: 40, vertical: 12),
                               ),
                               child: const Text(
-                                'Masuk',
+                                'Masuk sebagai Toko',
                                 style: TextStyle(color: Colors.white),
                               ),
                             ),
@@ -152,7 +168,7 @@ class _TokoLoginPageState extends State<TokoLoginPage> {
               child: Center(
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.pop(context); // kembali ke login utama
+                    Navigator.pushReplacementNamed(context, '/login');
                   },
                   child: RichText(
                     text: const TextSpan(
