@@ -1,97 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:pasar_tani_nelayan/Pages/LoginPage.dart';
 
-class ScreenProfileUsaha extends StatelessWidget {
-  const ScreenProfileUsaha({super.key});
+// Import halaman-halaman yang akan dituju oleh Bottom Nav Bar di halaman ini
+import 'package:pasar_tani_nelayan/Pages/HomeToko.dart'; // Untuk navigasi kembali ke Beranda (Produk Toko)
+import 'package:pasar_tani_nelayan/Pages/KelolaPesananPage.dart'; // Untuk navigasi ke Kelola Pesanan Toko
+
+class ProfileUsaha extends StatefulWidget {
+  // Ubah menjadi StatefulWidget
+  const ProfileUsaha({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor:
-          const Color(0xFFF9F7E8), // Warna latar belakang sesuai gambar
-      appBar: AppBar(
-        backgroundColor:
-            const Color(0xFFF9F7E8), // Sesuaikan dengan latar belakang
-        elevation: 0, // Hapus bayangan AppBar
-        title: const Text(
-          'Profil Usaha',
-          style: TextStyle(
-            color: Colors.black, // Warna teks hitam
-            fontWeight: FontWeight.bold,
-            fontSize: 22, // Ukuran font sesuai perkiraan
-            fontFamily: 'Poppins', // Menggunakan font Poppins
-          ),
-        ),
-        centerTitle: false, // Teks tidak di tengah
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings,
-                color: Color(0xFF5D844A), size: 30), // Icon gerigi
-            onPressed: () {
-              _showLogoutConfirmationDialog(
-                  context); // Panggil fungsi notifikasi logout
-            },
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20),
-            // Bagian Logo Usaha
-            Container(
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white, // Latar belakang putih untuk lingkaran
-                border: Border.all(
-                    color: const Color(0xFF5D844A), width: 2), // Border hijau
-              ),
-              child: ClipOval(
-                child: Image.asset(
-                  'assets/images/logo_pasar_tani.png', // Ganti dengan path gambar logo Anda
-                  fit: BoxFit.cover, // Sesuaikan sesuai kebutuhan
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'CV. Maju Jaya Hasil Tani, Blok M',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-                fontFamily: 'Poppins',
-              ),
-            ),
-            const SizedBox(height: 30),
-            // Daftar Pilihan Informasi
-            _buildInfoCard(context, 'Informasi Akun', '/profil_usaha'),
-            _buildInfoCard(context, 'Identitas Pemilik', '/identitas_pemilik'),
-            _buildInfoCard(
-                context, 'Informasi Rekening', '/informasi_rekening'),
-            _buildInfoCard(context, 'Informasi Toko', '/informasi_toko'),
-            _buildInfoCard(
-              context,
-              'Komunitas Tani',
-              null,
-              onTapCustom: () {
-                _showKomunitasTaniNotification(context);
-              },
-            ),
-            const SizedBox(height: 30),
-          ],
-        ),
-      ),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
-    );
-  }
+  State<ProfileUsaha> createState() => _ProfileUsahaState();
+}
 
-  // Widget pembantu untuk membuat kartu informasi
+class _ProfileUsahaState extends State<ProfileUsaha> {
+  int _selectedIndex = 2; // 'Profil Usaha' adalah index 2 di navbar ini
+
+  // Widget pembantu untuk membuat kartu informasi (tetap sama)
   Widget _buildInfoCard(BuildContext context, String title, String? routeName,
       {VoidCallback? onTapCustom}) {
     return Container(
@@ -109,7 +34,6 @@ class ScreenProfileUsaha extends StatelessWidget {
         ],
       ),
       child: Material(
-        // Gunakan Material untuk ripple effect
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
@@ -148,69 +72,7 @@ class ScreenProfileUsaha extends StatelessWidget {
     );
   }
 
-  // Widget untuk Bottom Navigation Bar
-  Widget _buildBottomNavigationBar(BuildContext context) {
-    return BottomNavigationBar(
-      backgroundColor: const Color(0xFF5D844A), // Warna hijau gelap
-      selectedItemColor: Colors.white, // Warna ikon/teks terpilih
-      unselectedItemColor:
-          Colors.white.withOpacity(0.7), // Warna ikon/teks tidak terpilih
-      type: BottomNavigationBarType.fixed, // Tetap saat item banyak
-      selectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
-      unselectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
-      currentIndex: 4, // 'Profil' adalah item terakhir
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.grid_view),
-          label: 'Produk',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons
-              .settings_applications), // Icon placeholder, ganti jika ada yang lebih cocok
-          label: 'Kelola',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.swap_horiz), // Icon barter
-          label: 'Barter',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.shopping_bag_outlined), // Icon pesanan
-          label: 'Pesanan',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profil',
-        ),
-      ],
-      onTap: (index) {
-        // Handle navigasi di sini
-        switch (index) {
-          case 0:
-            Navigator.pushNamed(
-                context, '/'); // Atau rute khusus untuk halaman produk
-            break;
-          case 1:
-            Navigator.pushNamed(
-                context, '/tambah_produk'); // Kelola -> Tambah Produk
-            break;
-          case 2:
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Navigasi ke halaman Barter')),
-            );
-            break;
-          case 3:
-            Navigator.pushNamed(
-                context, '/riwayat_pesanan'); // Pesanan -> Riwayat Pesanan
-            break;
-          case 4:
-            // Sudah di halaman profil, tidak perlu navigasi ulang
-            break;
-        }
-      },
-    );
-  }
-
-  // Fungsi untuk menampilkan notifikasi Komunitas Tani
+  // Fungsi untuk menampilkan notifikasi Komunitas Tani (tetap sama)
   void _showKomunitasTaniNotification(BuildContext context) {
     showDialog(
       context: context,
@@ -282,11 +144,11 @@ class ScreenProfileUsaha extends StatelessWidget {
     );
   }
 
-  // Fungsi baru untuk menampilkan dialog konfirmasi logout
+  // Fungsi untuk menampilkan dialog konfirmasi logout (tetap sama)
   void _showLogoutConfirmationDialog(BuildContext context) {
     showDialog(
       context: context,
-      barrierDismissible: true, // Bisa dismiss dengan tap di luar dialog
+      barrierDismissible: true,
       builder: (BuildContext dialogContext) {
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -322,22 +184,15 @@ class ScreenProfileUsaha extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.of(dialogContext).pop(); // Tutup dialog
-                    // Navigasi ke halaman login dan hapus semua rute sebelumnya
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
                           builder: (context) => const LoginPage()),
                       (Route<dynamic> route) => false,
                     );
-                    // Atau jika menggunakan named routes:
-                    // Navigator.pushNamedAndRemoveUntil(
-                    //   context,
-                    //   '/login',
-                    //   (Route<dynamic> route) => false,
-                    // );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white, // Warna tombol putih
+                    backgroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -347,7 +202,7 @@ class ScreenProfileUsaha extends StatelessWidget {
                   child: const Text(
                     'Logout',
                     style: TextStyle(
-                      color: Color(0xFF5D844A), // Warna teks tombol hijau
+                      color: Color(0xFF5D844A),
                       fontFamily: 'Poppins',
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -359,6 +214,123 @@ class ScreenProfileUsaha extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    switch (index) {
+      case 0: // Produk
+        Navigator.pushReplacementNamed(context, '/toko_homepage');
+        break;
+      case 1: // Kelola Pesanan
+        Navigator.pushReplacementNamed(context, '/kelola_pesanan');
+        break;
+      case 2: // Profil Usaha
+        // Sudah di halaman ini, tidak perlu navigasi
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF9F7E8),
+      appBar: AppBar(
+        title: const Text('Profil Usaha'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              _showLogoutConfirmationDialog(context);
+            },
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 20),
+            Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+                border: Border.all(color: const Color(0xFF5D844A), width: 2),
+              ),
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/images/logo_pasar_tani.png',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => const Icon(
+                      Icons.broken_image,
+                      size: 50,
+                      color: Colors.grey),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'CV. Maju Jaya Hasil Tani, Blok M',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            const SizedBox(height: 30),
+            _buildInfoCard(context, 'Informasi Akun', '/informasi_usaha'),
+            _buildInfoCard(context, 'Identitas Pemilik', '/identitas_pemilik'),
+            _buildInfoCard(
+                context, 'Informasi Rekening', '/informasi_rekening'),
+            _buildInfoCard(context, 'Informasi Toko', '/informasi_toko'),
+            _buildInfoCard(
+              context,
+              'Komunitas Tani',
+              null,
+              onTapCustom: () {
+                _showKomunitasTaniNotification(context);
+              },
+            ),
+            const SizedBox(height: 30),
+          ],
+        ),
+      ),
+      // BottomNavigationBar DITAMBAHKAN KEMBALI DI SINI
+      bottomNavigationBar: Container(
+        decoration: const BoxDecoration(
+          color: Color(0xFF5D844A), // Warna hijau gelap
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: BottomNavigationBar(
+          backgroundColor: Colors.transparent, // Membuat background transparan
+          elevation: 0, // Menghilangkan shadow
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white.withOpacity(0.7),
+          type: BottomNavigationBarType.fixed,
+          selectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
+          unselectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
+          currentIndex: _selectedIndex, // Menggunakan state internal
+          onTap: _onItemTapped,
+          items: const [
+            BottomNavigationBarItem(
+                icon: Icon(Icons.grid_view), label: 'Produk'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.inventory_2_outlined),
+                label: 'Kelola Pesanan'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.person), label: 'Profil Usaha'),
+          ],
+        ),
+      ),
     );
   }
 }

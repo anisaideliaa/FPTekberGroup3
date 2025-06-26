@@ -1,31 +1,44 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../providers/cart_provider.dart';
+import 'PembayaranPage.dart';
+import 'PilihLokasiPage.dart';
 
-class CheckoutPage extends StatelessWidget {
+class CheckoutPage extends StatefulWidget {
   final CartProvider cartProvider;
 
   const CheckoutPage({Key? key, required this.cartProvider}) : super(key: key);
 
   @override
+  State<CheckoutPage> createState() => _CheckoutPageState();
+}
+
+class _CheckoutPageState extends State<CheckoutPage> {
+  bool gunakanKupon = false;
+  String selectedAddress = 'Belum dipilih';
+
+  Widget _buildImageWidget(String image) {
+    if (image.startsWith('http')) {
+      return Image.network(image, fit: BoxFit.cover);
+    } else if (image.length > 100) {
+      try {
+        final bytes = base64Decode(image);
+        return Image.memory(bytes, fit: BoxFit.cover);
+      } catch (_) {
+        return const Icon(Icons.broken_image);
+      }
+    } else {
+      return Center(child: Text(image, style: const TextStyle(fontSize: 36)));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Dummy data for address, shipping, payment, etc.
-    final address =
-        'Jalan Raya Jaksa | RT.06/RW.03 Keputih, Sukolilo, Surabaya, 60111. (Depan Masjid Al-Muttaqin)';
-    final shippingMethod = 'Pengiriman Reguler\n1-2 Hari';
-    final paymentMethod = 'Bank BNI\n120*****54';
-    final coupon = 'Gratis Ongkir\nDaerah Surabaya';
-
-    // Example: using the first cart item for display
-    final cartItem =
-        cartProvider.items.isNotEmpty ? cartProvider.items[0] : null;
-
-    // Dummy price breakdown
-    final productPrice = 1100000;
-    final shippingFee = 180000;
-    final guarantee = 0;
-    final shippingDiscount = 180000;
-    final totalPrice =
-        productPrice + shippingFee + guarantee - shippingDiscount;
+    final shippingFee = 20000;
+    final shippingDiscount = gunakanKupon ? shippingFee : 0;
+    final productTotal = widget.cartProvider.totalPrice;
+    final totalPrice = productTotal + shippingFee - shippingDiscount;
+    final cartItems = widget.cartProvider.items;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F3E7),
@@ -36,195 +49,73 @@ class CheckoutPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Row(
-          children: [
-            ClipOval(
-              child: Container(
-                width: 40,
-                height: 40,
-                color: Colors.green[100],
-                child: Image.asset(
-                  'assets/logo.png', // Replace with your logo asset if available
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) =>
-                      const Icon(Icons.eco, color: Colors.green, size: 24),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            const Text(
-              'PASAR TANI',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
+        title: const Text('Checkout'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Alamat Anda
-            const Text(
-              'Alamat Anda',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+            const Text('Alamat Anda',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: Text(
-                    address,
+                    selectedAddress,
                     style: const TextStyle(fontSize: 15),
                   ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.chevron_right),
-                  onPressed: () {},
+                  onPressed: () async {
+                    final result = await Navigator.push<String>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PilihLokasiPage(),
+                      ),
+                    );
+                    if (result != null && result.isNotEmpty) {
+                      setState(() {
+                        selectedAddress = result;
+                      });
+                    }
+                  },
                 ),
               ],
             ),
             const SizedBox(height: 16),
-
-            // Product Card
-            if (cartItem != null)
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFFB6BC8A),
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    // Product image
-                    Container(
-                      width: 70,
-                      height: 70,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: cartItem.product.image.startsWith('http')
-                          ? Image.network(cartItem.product.image,
-                              fit: BoxFit.cover)
-                          : Center(
-                              child: Text(
-                                cartItem.product.image,
-                                style: const TextStyle(fontSize: 36),
-                              ),
-                            ),
-                    ),
-                    const SizedBox(width: 16),
-                    // Product info
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'CV. Maju Jaya Hasil Tani, Blok M',
-                            style: TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            cartItem.product.name,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Quantity
-                    Column(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            '${cartItem.quantity} Unit',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+            ...cartItems.map((item) => _buildCartItem(item)).toList(),
             const SizedBox(height: 24),
-
-            // Metode Pengiriman
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Metode Pengiriman',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.chevron_right),
-                  onPressed: () {},
-                ),
+            _sectionTitle('Metode Pengiriman'),
+            const Text('Pengiriman Reguler\n1-2 Hari',
+                style: TextStyle(fontSize: 15)),
+            const SizedBox(height: 20),
+            _sectionTitle('Metode Pembayaran'),
+            const Text('Bank BNI\n120*****54', style: TextStyle(fontSize: 15)),
+            const SizedBox(height: 20),
+            const Text('Kupon Harga',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            DropdownButton<bool>(
+              value: gunakanKupon,
+              items: const [
+                DropdownMenuItem(
+                    value: false, child: Text('Tidak Menggunakan Kupon')),
+                DropdownMenuItem(
+                    value: true, child: Text('Gratis Ongkir Daerah Surabaya')),
               ],
-            ),
-            Text(
-              shippingMethod,
-              style: const TextStyle(fontSize: 15),
-            ),
-            const SizedBox(height: 20),
-
-            // Metode Pembayaran
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Metode Pembayaran',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.chevron_right),
-                  onPressed: () {},
-                ),
-              ],
-            ),
-            Text(
-              paymentMethod,
-              style: const TextStyle(fontSize: 15),
+              onChanged: (value) {
+                setState(() {
+                  gunakanKupon = value!;
+                });
+              },
             ),
             const SizedBox(height: 20),
-
-            // Kupon Harga
-            const Text(
-              'Kupon Harga',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              coupon,
-              style: const TextStyle(fontSize: 15),
-            ),
-            const SizedBox(height: 20),
-
-            // Total Harga
-            const Text(
-              'Total Harga',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+            const Text('Total Harga',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(16),
@@ -234,28 +125,23 @@ class CheckoutPage extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  _priceRow('Harga Produk', '+Rp. 1.100.000,00'),
-                  _priceRow('Biaya Pengiriman', '+Rp. 180.000,00'),
-                  _priceRow('Jaminan Produk', '+Rp. 0,00'),
-                  _priceRow('Potongan Ongkos Kirim', '-Rp. 180.000,00'),
+                  _priceRow('Harga Produk',
+                      '+Rp. ${productTotal.toStringAsFixed(0)}'),
+                  _priceRow('Biaya Pengiriman', '+Rp. $shippingFee'),
+                  _priceRow('Potongan Ongkir', '-Rp. $shippingDiscount'),
                   const Divider(),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Total Harga',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
+                      const Text('Total Harga',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
                       Text(
-                        'Rp. ${totalPrice.toStringAsFixed(2).replaceAllMapped(RegExp(r'(\d)(?=(\d{3})+\.)'), (match) => '${match[1]}.').replaceAll('.00', ',00')}',
+                        'Rp. ${totalPrice.toStringAsFixed(0)}',
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.green[900],
-                        ),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.green[900]),
                       ),
                     ],
                   ),
@@ -263,8 +149,6 @@ class CheckoutPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-
-            // Bayar button
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -278,7 +162,16 @@ class CheckoutPage extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    // Handle payment action
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PembayaranPage(
+                          cartProvider: widget.cartProvider,
+                          totalHarga: totalPrice,
+                          alamatPengiriman: selectedAddress, // <- penting
+                        ),
+                      ),
+                    );
                   },
                   child: const Text(
                     'Bayar',
@@ -297,16 +190,95 @@ class CheckoutPage extends StatelessWidget {
     );
   }
 
-  Widget _priceRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
+  Widget _buildCartItem(cartItem) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFB6BC8A),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      padding: const EdgeInsets.all(16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(fontSize: 15)),
-          Text(value, style: const TextStyle(fontSize: 15)),
+          Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: _buildImageWidget(cartItem.product.image),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(cartItem.product.seller,
+                    style: const TextStyle(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13)),
+                const SizedBox(height: 4),
+                Text(cartItem.product.name,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w500)),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove_circle_outline),
+                      onPressed: () {
+                        setState(() {
+                          if (cartItem.quantity > 1) {
+                            cartItem.quantity--;
+                          } else {
+                            widget.cartProvider.removeItem(cartItem.product.id);
+                          }
+                        });
+                      },
+                    ),
+                    Text('${cartItem.quantity}',
+                        style: const TextStyle(fontSize: 16)),
+                    IconButton(
+                      icon: const Icon(Icons.add_circle_outline),
+                      onPressed: () {
+                        setState(() {
+                          cartItem.quantity++;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
+
+  Widget _sectionTitle(String title) => Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(title,
+              style:
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          IconButton(icon: const Icon(Icons.chevron_right), onPressed: () {}),
+        ],
+      );
+
+  Widget _priceRow(String label, String value) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: const TextStyle(fontSize: 15)),
+            Text(value, style: const TextStyle(fontSize: 15)),
+          ],
+        ),
+      );
 }

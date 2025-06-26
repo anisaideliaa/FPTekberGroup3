@@ -1,50 +1,59 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 
+class CartItem {
+  final Product product;
+  int quantity;
+
+  CartItem({required this.product, this.quantity = 1});
+}
+
 class CartProvider extends ChangeNotifier {
-  List<CartItem> items = [];
+  final List<CartItem> _items = [];
 
-  void addItem(Product product) {
-    final existingIndex =
-        items.indexWhere((item) => item.product.name == product.name);
-    if (existingIndex >= 0) {
-      items[existingIndex].quantity++;
-    } else {
-      items.add(CartItem(product: product));
-    }
-    notifyListeners();
-  }
+  List<CartItem> get items => _items;
 
-  void updateQuantity(int index, int quantity) {
-    if (quantity <= 0) {
-      items.removeAt(index);
-    } else {
-      items[index].quantity = quantity;
-    }
-    notifyListeners();
-  }
-
-  void removeItem(int index) {
-    items.removeAt(index);
-    notifyListeners();
-  }
+  // ✅ Menghitung total kuantitas, bukan jenis
+  int get itemCount => _items.fold(0, (sum, item) => sum + item.quantity);
 
   double get totalPrice {
-    return items.fold(0.0, (sum, item) {
-      final price = double.parse(item.product.price
-          .replaceAll('Rp. ', '')
-          .replaceAll('.', '')
-          .replaceAll(',00', ''));
-      return sum + (price * item.quantity);
-    });
+    double total = 0;
+    for (var item in _items) {
+      final price = double.tryParse(
+              item.product.price.replaceAll(RegExp(r'[^\d]'), '')) ??
+          0;
+      total += price * item.quantity;
+    }
+    return total;
   }
 
-  int get totalItems => items.fold(0, (sum, item) => sum + item.quantity);
-
-  int get itemCount => items.length;
-
-  void clear() {
-    items.clear();
+  void addToCart(Product product) {
+    final index = _items.indexWhere((item) => item.product.id == product.id);
+    if (index != -1) {
+      _items[index].quantity += 1;
+    } else {
+      _items.add(CartItem(product: product));
+    }
     notifyListeners();
   }
+
+  void updateQuantity(Product product, int quantity) {
+    final index = _items.indexWhere((item) => item.product.id == product.id);
+    if (index != -1 && quantity > 0) {
+      _items[index].quantity = quantity;
+      notifyListeners();
+    }
+  }
+
+  void removeItem(Product product) {
+    _items.removeWhere((item) => item.product.id == product.id);
+    notifyListeners();
+  }
+
+  void clearCart() {
+    _items.clear();
+    notifyListeners();
+  }
+
+  void clear() => clearCart(); // alias
 }

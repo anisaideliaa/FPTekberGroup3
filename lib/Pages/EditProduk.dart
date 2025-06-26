@@ -2,93 +2,114 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import '../services/product_service.dart';
 
-class TambahProduk extends StatefulWidget {
-  const TambahProduk({Key? key}) : super(key: key);
+class EditProdukPage extends StatefulWidget {
+  final String id;
+  final Map<String, dynamic> data;
+
+  const EditProdukPage({super.key, required this.id, required this.data});
 
   @override
-  _TambahProdukState createState() => _TambahProdukState();
+  State<EditProdukPage> createState() => _EditProdukPageState();
 }
 
-class _TambahProdukState extends State<TambahProduk> {
+class _EditProdukPageState extends State<EditProdukPage> {
   final _formKey = GlobalKey<FormState>();
-  final _namaProdukController = TextEditingController();
-  final _deskripsiProdukController = TextEditingController();
-  final _hargaProdukController = TextEditingController();
-  final _jumlahProdukController = TextEditingController();
-  final _beratProdukController = TextEditingController();
-  String? _jenisProduk = 'Pilih Jenis';
+  final _namaController = TextEditingController();
+  final _deskripsiController = TextEditingController();
+  final _hargaController = TextEditingController();
+  final _jumlahDisplayController = TextEditingController();
+  final _beratController = TextEditingController();
+  String? _jenisProduk;
+  String? _currentBase64;
+  PlatformFile? _fileBaru;
 
-  PlatformFile? _gambarProduk;
+  @override
+  void initState() {
+    super.initState();
+    _namaController.text = widget.data['nama'] ?? '';
+    _deskripsiController.text = widget.data['deskripsi'] ?? '';
+    _hargaController.text = widget.data['harga'].toString();
+    _jumlahDisplayController.text = widget.data['display'].toString();
+    _beratController.text = widget.data['berat'].toString();
+    _jenisProduk = widget.data['jenis'] ?? 'Pilih Jenis';
+    _currentBase64 = widget.data['imageBase64'];
+  }
 
   @override
   void dispose() {
-    _namaProdukController.dispose();
-    _deskripsiProdukController.dispose();
-    _hargaProdukController.dispose();
-    _jumlahProdukController.dispose();
-    _beratProdukController.dispose();
+    _namaController.dispose();
+    _deskripsiController.dispose();
+    _hargaController.dispose();
+    _jumlahDisplayController.dispose();
+    _beratController.dispose();
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
+  Future<void> _pilihGambarBaru() async {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.image,
       withData: true,
     );
     if (result != null && result.files.isNotEmpty) {
       setState(() {
-        _gambarProduk = result.files.first;
+        _fileBaru = result.files.first;
       });
     }
   }
 
-  void _simpanProduk() async {
+  Future<void> _updateProduk() async {
     if (_formKey.currentState!.validate()) {
-      final base64Image = _gambarProduk != null && _gambarProduk!.bytes != null
-          ? base64Encode(_gambarProduk!.bytes!)
-          : '';
+      String finalBase64 = _currentBase64 ?? '';
 
-      final newProduct = {
-        'nama': _namaProdukController.text,
-        'deskripsi': _deskripsiProdukController.text,
+      if (_fileBaru != null && _fileBaru!.bytes != null) {
+        finalBase64 = base64Encode(_fileBaru!.bytes!);
+      }
+
+      final updatedProduct = {
+        'nama': _namaController.text,
+        'deskripsi': _deskripsiController.text,
         'jenis': _jenisProduk,
-        'harga': double.parse(_hargaProdukController.text),
-        'display': int.tryParse(_jumlahProdukController.text) ?? 0,
-        'gudang': 0,
-        'berat': double.tryParse(_beratProdukController.text) ?? 0,
-        'potongan': 0,
-        'createdAt': FieldValue.serverTimestamp(),
-        'imageBase64': base64Image,
+        'harga': double.tryParse(_hargaController.text) ?? 0,
+        'display': int.tryParse(_jumlahDisplayController.text) ?? 0,
+        'berat': double.tryParse(_beratController.text) ?? 0,
+        'imageBase64': finalBase64,
+        'updatedAt': FieldValue.serverTimestamp(),
       };
 
-      try {
-        await ProductService().tambahProduk(newProduct);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Produk berhasil ditambahkan')),
-          );
-          Navigator.pop(context);
-        }
-      } catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Gagal menambahkan produk: $e')),
-          );
-        }
+      await ProductService().updateProduk(widget.id, updatedProduct);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Produk berhasil diperbarui')),
+        );
+        Navigator.pop(context);
       }
+    }
+  }
+
+  Future<void> _hapusProduk() async {
+    await ProductService().hapusProduk(widget.id);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Produk telah dihapus')),
+      );
+      Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final Uint8List? imageBytes = _fileBaru?.bytes ??
+        (_currentBase64 != null ? base64Decode(_currentBase64!) : null);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F3E7),
       appBar: AppBar(
-        title: const Text('Tambah Produk'),
+        title: const Text('Edit Produk'),
         backgroundColor: const Color(0xFFF5F3E7),
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.green),
@@ -112,61 +133,78 @@ class _TambahProdukState extends State<TambahProduk> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _formTitle('Informasi Produk'),
-                  _buildTextField('Nama Produk', _namaProdukController,
-                      TextInputType.text, true),
                   _buildTextField(
-                      'Deskripsi Produk',
-                      _deskripsiProdukController,
-                      TextInputType.multiline,
-                      false,
+                      'Nama Produk', _namaController, TextInputType.text, true),
+                  _buildTextField('Deskripsi Produk', _deskripsiController,
+                      TextInputType.multiline, false,
                       maxLines: 3),
                   _buildDropdownJenisProduk(),
                   const SizedBox(height: 16),
                   _formTitle('Gambar Produk'),
                   ElevatedButton.icon(
-                    onPressed: _pickImage,
+                    onPressed: _pilihGambarBaru,
                     icon: const Icon(Icons.upload_file),
-                    label: Text(_gambarProduk == null
-                        ? 'Upload Gambar'
-                        : 'Terpilih: ${_gambarProduk!.name}'),
+                    label: Text(_fileBaru == null
+                        ? 'Ganti Gambar Produk'
+                        : 'Dipilih: ${_fileBaru!.name}'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey[200],
                       foregroundColor: Colors.black,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14)),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
-                  if (_gambarProduk?.bytes != null)
+                  if (imageBytes != null)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: Image.memory(
-                        _gambarProduk!.bytes!,
+                        imageBytes,
                         height: 150,
                         fit: BoxFit.cover,
                       ),
                     ),
                   const SizedBox(height: 24),
                   _formTitle('Harga & Stok'),
-                  _buildTextField('Harga Produk', _hargaProdukController,
+                  _buildTextField('Harga Produk', _hargaController,
                       TextInputType.number, true),
                   _buildTextField('Jumlah Produk Display',
-                      _jumlahProdukController, TextInputType.number, false),
-                  _buildTextField('Berat Produk (gram)', _beratProdukController,
+                      _jumlahDisplayController, TextInputType.number, false),
+                  _buildTextField('Berat Produk (KG)', _beratController,
                       TextInputType.number, false),
                   const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: _simpanProduk,
+                      onPressed: _updateProduk,
                       icon: const Icon(Icons.save),
-                      label: const Text('Simpan Produk'),
+                      label: const Text('Simpan Perubahan'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green[700],
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _hapusProduk,
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      label: const Text(
+                        'Hapus Produk',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.red),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                     ),
@@ -221,6 +259,23 @@ class _TambahProdukState extends State<TambahProduk> {
   }
 
   Widget _buildDropdownJenisProduk() {
+    final List<String> jenisList = [
+      'Pilih Jenis',
+      'Pendukung Pertanian',
+      'Alat Pertanian',
+      'Sayuran',
+      'Buah-buahan',
+      'Biji-bijian',
+      'Umbi-umbian',
+      'Pendukung Perikanan',
+      'Alat Perikanan',
+      'Ikan'
+    ];
+
+    if (!jenisList.contains(_jenisProduk)) {
+      jenisList.insert(0, _jenisProduk ?? 'Pilih Jenis');
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: DropdownButtonFormField<String>(
@@ -229,18 +284,7 @@ class _TambahProdukState extends State<TambahProduk> {
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         ),
         value: _jenisProduk,
-        items: <String>[
-          'Pilih Jenis',
-          'Pendukung Pertanian',
-          'Alat Pertanian',
-          'Sayuran',
-          'Buah-buahan',
-          'Biji-bijian',
-          'Umbi-umbian',
-          'Pendukung Perikanan',
-          'Alat Perikanan',
-          'Ikan'
-        ].map((value) {
+        items: jenisList.map((value) {
           return DropdownMenuItem<String>(
             value: value,
             child: Text(value),

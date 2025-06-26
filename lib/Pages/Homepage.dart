@@ -1,16 +1,19 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pasar_tani_nelayan/Pages/ProfilUser.dart';
 import '../models/product.dart';
 import '../providers/cart_provider.dart' as cart;
+import '../services/product_service.dart';
 import '../widgets/product_card.dart';
 import '../widgets/custom_app_bar.dart';
-import '../widgets/map_section.dart';
 import '../widgets/search_bar_widget.dart';
 import 'ProductDetailPage.dart';
 import 'CartPage.dart';
-import 'ProfilUser.dart';
-import 'RiwayatPesanan.dart'; // ✅ Tambahan import halaman
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -18,200 +21,231 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final cart.CartProvider cartProvider = cart.CartProvider();
   int _selectedIndex = 0;
+  String searchQuery = '';
+  String? _filterOption;
 
-  final List<Product> products = [
-    Product(
-      name: 'Jagung Kristal Cap Merpati 1 KG',
-      price: 'Rp. 15.000,00',
-      image: '🌽',
-      category: 'Paling Laku',
-      weight: '1 KG',
-      description:
-          'Jagung Kristal adalah pakan berkualitas tinggi yang dirancang khusus untuk memenuhi kebutuhan nutrisi burung merpati.',
-    ),
-    Product(
-      name: 'Beras Pinpin Eksklusif 5 KG',
-      price: 'Rp. 85.000,00',
-      image: '🍚',
-      category: 'Termurah Surabaya',
-      weight: '5 KG',
-      description:
-          'Beras premium berkualitas tinggi dengan tekstur pulen dan aroma yang harum.',
-    ),
-    Product(
-      name: 'Ubi Ungu Desa Super 10 KG',
-      price: 'Rp. 130.000,00',
-      image: '🍠',
-      category: 'Paling Laku',
-      weight: '10 KG',
-      description: 'Ubi ungu segar dari petani lokal dengan kualitas terbaik.',
-    ),
-    Product(
-      name: 'Biji Kopi Hitam Premium 1KG',
-      price: 'Rp. 60.000,00',
-      image: '☕',
-      category: 'Paling Laku',
-      weight: '1 KG',
-      description:
-          'Biji kopi pilihan dengan cita rasa yang khas dan aroma yang menggoda.',
-    ),
-    Product(
-      name: 'Kangkung Fresh 500Gram',
-      price: 'Rp. 9.000,00',
-      image: '🥬',
-      category: '',
-      weight: '500 Gram',
-      description: 'Kangkung segar langsung dari kebun petani lokal.',
-    ),
-    Product(
-      name: 'Cengkeh Kering Cap Bagus 5KG',
-      price: 'Rp. 550.000,00',
-      image: '🌿',
-      category: '',
-      weight: '5 KG',
-      description:
-          'Cengkeh kering berkualitas tinggi untuk berbagai keperluan.',
-    ),
-    Product(
-      name: 'Minyak Kepala Sawit 2Liter',
-      price: 'Rp. 35.534,00',
-      image: '🥥',
-      category: '',
-      weight: '2 Liter',
-      description: 'Minyak sawit murni untuk kebutuhan memasak sehari-hari.',
-    ),
-    Product(
-      name: 'Kentang Ukuran Sedang 1KG',
-      price: 'Rp. 15.000,00',
-      image: '🥔',
-      category: 'Paling Laku',
-      weight: '1 KG',
-      description: 'Kentang segar ukuran sedang dengan kualitas terbaik.',
-    ),
-  ];
+  void _onItemTapped(int index) async {
+    setState(() => _selectedIndex = index);
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-
-    if (index == 1) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const RiwayatPesananPage(),
-        ),
-      );
-    }
-
-    if (index == 2) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const ProfilUserPage(),
-        ),
-      );
+    switch (index) {
+      case 0:
+        break;
+      case 1:
+        await Navigator.pushNamed(context, '/riwayat_pesanan');
+        setState(() => _selectedIndex = 0);
+        break;
+      case 2:
+        await Navigator.pushNamed(context, '/profil_user');
+        setState(() => _selectedIndex = 0);
+        break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final crossAxisCount = screenWidth >= 1200
+        ? 4
+        : screenWidth >= 800
+            ? 3
+            : 2;
+    final aspectRatio = screenWidth >= 1200
+        ? 0.7
+        : screenWidth >= 800
+            ? 0.75
+            : 0.62;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F3E7),
       appBar: CustomAppBar(title: 'Beranda'),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SearchBarWidget(
-              cartProvider: cartProvider,
-              onCartTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CartPage(cartProvider: cartProvider),
-                  ),
-                );
-              },
-            ),
-            MapSection(),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SearchBarWidget(
+                cartProvider: cartProvider,
+                onCartTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CartPage(cartProvider: cartProvider),
+                    ),
+                  );
+                  setState(() {}); // ✅ refresh badge
+                },
+                onSearchSubmit: (value) {
+                  setState(() {
+                    searchQuery = value.toLowerCase();
+                  });
+                },
+              ),
+              const Text(
+                'Untuk Anda',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Filter Berdasarkan:',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+              const SizedBox(height: 6),
+              Row(
                 children: [
-                  const Text(
-                    'Untuk Anda',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      value: _filterOption,
+                      hint: const Text(
+                        'Pilih Filter',
+                        style: TextStyle(fontFamily: 'Poppins', fontSize: 12),
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                            value: 'terendah', child: Text('Harga Terendah')),
+                        DropdownMenuItem(
+                            value: 'tertinggi', child: Text('Harga Tertinggi')),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _filterOption = value;
+                        });
+                      },
                     ),
                   ),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey[400]!),
-                      borderRadius: BorderRadius.circular(20),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[300],
+                      foregroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Icon(Icons.tune, size: 16, color: Colors.grey),
-                        SizedBox(width: 4),
-                        Text(
-                          'Filter Produk Yang Anda Cari',
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                        Icon(Icons.keyboard_arrow_down,
-                            size: 16, color: Colors.grey),
-                      ],
-                    ),
+                    onPressed: () {
+                      setState(() {
+                        _filterOption = null;
+                      });
+                    },
+                    child: const Text('Reset Filter',
+                        style: TextStyle(fontFamily: 'Poppins', fontSize: 12)),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 0.62,
-                ),
-                itemCount: products.length,
-                itemBuilder: (context, index) {
-                  final product = products[index];
-                  return ProductCard(
-                    product: product,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProductDetailPage(
-                            product: product,
-                            cartProvider: cartProvider,
-                          ),
-                        ),
+              const SizedBox(height: 20),
+              StreamBuilder<QuerySnapshot>(
+                stream: ProductService().ambilSemuaProduk(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Text('Terjadi kesalahan: ${snapshot.error}');
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(
+                      child: Text('Belum ada produk.',
+                          style: TextStyle(fontFamily: 'Poppins')),
+                    );
+                  }
+
+                  List<QueryDocumentSnapshot> produkList =
+                      snapshot.data!.docs.where((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
+                    final namaProduk =
+                        (data['nama'] ?? '').toString().toLowerCase();
+                    return namaProduk.contains(searchQuery);
+                  }).toList();
+
+                  if (_filterOption == 'terendah') {
+                    produkList.sort(
+                        (a, b) => (a['harga'] ?? 0).compareTo(b['harga'] ?? 0));
+                  } else if (_filterOption == 'tertinggi') {
+                    produkList.sort(
+                        (a, b) => (b['harga'] ?? 0).compareTo(a['harga'] ?? 0));
+                  }
+
+                  if (produkList.isEmpty) {
+                    return const Center(
+                      child: Text('Produk tidak ditemukan.',
+                          style: TextStyle(fontFamily: 'Poppins')),
+                    );
+                  }
+
+                  return GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: produkList.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                      childAspectRatio: aspectRatio,
+                    ),
+                    itemBuilder: (context, index) {
+                      final doc = produkList[index];
+                      final data = doc.data() as Map<String, dynamic>;
+                      final imageBase64 = data['imageBase64'] as String?;
+
+                      final product = Product(
+                        id: doc.id,
+                        name: data['nama'] ?? '',
+                        description: data['deskripsi'] ?? '',
+                        price: 'Rp ${data['harga']?.toStringAsFixed(0) ?? '0'}',
+                        image: imageBase64 ?? '🛒',
+                        category: data['jenis'] ?? '',
+                        weight: '${data['berat'] ?? 0} KG',
+                        seller: data['penjual'] ??
+                            'CV. Maju Jaya Hasil Tani, Blok M',
+                      );
+
+                      return ProductCard(
+                        product: product,
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ProductDetailPage(
+                                product: product,
+                                cartProvider: cartProvider,
+                              ),
+                            ),
+                          );
+                          setState(() {}); // Refresh badge/cart
+                        },
                       );
                     },
                   );
                 },
               ),
-            ),
-            const SizedBox(height: 100),
-          ],
+              const SizedBox(height: 100),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.green[700],
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        decoration: const BoxDecoration(
+          color: Color(0xFF5D844A),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: BottomNavigationBar(
           backgroundColor: Colors.transparent,
@@ -219,21 +253,15 @@ class _HomePageState extends State<HomePage> {
           selectedItemColor: Colors.white,
           unselectedItemColor: Colors.white70,
           type: BottomNavigationBarType.fixed,
-          currentIndex: _selectedIndex,
+          selectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
+          unselectedLabelStyle: const TextStyle(fontFamily: 'Poppins'),
+          currentIndex: 0,
           onTap: _onItemTapped,
           items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Beranda',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.local_shipping),
-              label: 'Dikirim &\nDiproses',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profil',
-            ),
+                icon: Icon(Icons.local_shipping), label: 'Pesanan'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
           ],
         ),
       ),
