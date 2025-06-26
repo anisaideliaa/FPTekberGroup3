@@ -87,6 +87,8 @@ class KelolaPesananPage extends StatelessWidget {
               final docId = docs[index].id;
               final status = data['status'];
               final imageBase64 = data['imageBase64'] ?? '🛒';
+              final alamat =
+                  data['alamatPengiriman'] ?? 'Alamat tidak tersedia';
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8),
@@ -96,6 +98,7 @@ class KelolaPesananPage extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
@@ -112,21 +115,28 @@ class KelolaPesananPage extends StatelessWidget {
                                         fontFamily: 'Poppins')),
                                 const SizedBox(height: 4),
                                 Text('Jumlah: ${data['jumlah']} unit',
-                                    style: const TextStyle(fontFamily: 'Poppins')),
+                                    style:
+                                        const TextStyle(fontFamily: 'Poppins')),
                                 Text('Total: Rp ${data['total']}',
-                                    style: const TextStyle(fontFamily: 'Poppins')),
+                                    style:
+                                        const TextStyle(fontFamily: 'Poppins')),
                               ],
                             ),
                           ),
                         ],
                       ),
+                      const SizedBox(height: 8),
+                      Text('Alamat: $alamat',
+                          style: const TextStyle(
+                              fontSize: 13, fontFamily: 'Poppins')),
                       const SizedBox(height: 12),
                       IntrinsicHeight(
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 12),
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 color: _statusColor(status),
@@ -142,7 +152,8 @@ class KelolaPesananPage extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            if (status == 'Menunggu Konfirmasi' || status == 'Pesanan Diproses')
+                            if (status == 'Menunggu Konfirmasi' ||
+                                status == 'Pesanan Diproses')
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: () async {
@@ -161,7 +172,8 @@ class KelolaPesananPage extends StatelessWidget {
 
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(SnackBar(
-                                        content: Text('Status diubah menjadi "$newStatus"'),
+                                        content: Text(
+                                            'Status diubah menjadi "$newStatus"'),
                                       ));
                                     }
                                   },
@@ -170,11 +182,13 @@ class KelolaPesananPage extends StatelessWidget {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12),
                                   ),
                                   child: Text(
                                     _buttonLabel(status),
-                                    style: const TextStyle(fontFamily: 'Poppins'),
+                                    style:
+                                        const TextStyle(fontFamily: 'Poppins'),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),

@@ -7,7 +7,6 @@ import '../providers/cart_provider.dart' as cart;
 import '../services/product_service.dart';
 import '../widgets/product_card.dart';
 import '../widgets/custom_app_bar.dart';
-import '../widgets/map_section.dart';
 import '../widgets/search_bar_widget.dart';
 import 'ProductDetailPage.dart';
 import 'CartPage.dart';
@@ -82,9 +81,6 @@ class _HomePageState extends State<HomePage> {
                   });
                 },
               ),
-              const SizedBox(height: 12),
-              MapSection(),
-              const SizedBox(height: 20),
               const Text(
                 'Untuk Anda',
                 style: TextStyle(

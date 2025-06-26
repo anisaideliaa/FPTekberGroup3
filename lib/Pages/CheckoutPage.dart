@@ -36,7 +36,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Widget build(BuildContext context) {
     final shippingFee = 20000;
     final shippingDiscount = gunakanKupon ? shippingFee : 0;
-
     final productTotal = widget.cartProvider.totalPrice;
     final totalPrice = productTotal + shippingFee - shippingDiscount;
     final cartItems = widget.cartProvider.items;
@@ -64,8 +63,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                    child: Text(selectedAddress,
-                        style: const TextStyle(fontSize: 15))),
+                  child: Text(
+                    selectedAddress,
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                ),
                 IconButton(
                   icon: const Icon(Icons.chevron_right),
                   onPressed: () async {
@@ -166,6 +168,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         builder: (_) => PembayaranPage(
                           cartProvider: widget.cartProvider,
                           totalHarga: totalPrice,
+                          alamatPengiriman: selectedAddress, // <- penting
                         ),
                       ),
                     );

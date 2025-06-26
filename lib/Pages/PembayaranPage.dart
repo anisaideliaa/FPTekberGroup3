@@ -8,11 +8,13 @@ import '../providers/cart_provider.dart';
 class PembayaranPage extends StatefulWidget {
   final CartProvider cartProvider;
   final double totalHarga;
+  final String alamatPengiriman;
 
   const PembayaranPage({
     Key? key,
     required this.cartProvider,
     required this.totalHarga,
+    required this.alamatPengiriman,
   }) : super(key: key);
 
   @override
@@ -41,17 +43,17 @@ class _PembayaranPageState extends State<PembayaranPage> {
     setState(() => _isUploading = true);
 
     try {
-      final base64Bukti = base64Encode(_buktiPembayaran!.bytes as Uint8List);
+      final base64String = base64Encode(_buktiPembayaran!.bytes as Uint8List);
       final firstItem = widget.cartProvider.items.first;
-      final produk = firstItem.product;
 
       await FirebaseFirestore.instance.collection('pesanan').add({
-        'produk': produk.name,
+        'produk': firstItem.product.name,
         'jumlah': firstItem.quantity,
         'total': widget.totalHarga,
+        'alamatPengiriman': widget.alamatPengiriman, // <-- Simpan alamat
+        'imageBase64': firstItem.product.image,
+        'buktiPembayaranBase64': base64String,
         'status': 'Menunggu Konfirmasi',
-        'buktiPembayaranBase64': base64Bukti,
-        'imageBase64': produk.image.length > 100 ? produk.image : null,
         'waktuPesan': Timestamp.now(),
       });
 
@@ -113,6 +115,7 @@ class _PembayaranPageState extends State<PembayaranPage> {
                       const Text('Bank: BNI'),
                       const Text('Nomor Rekening: 120xxxxxxxx54'),
                       const Text('a.n. CV. Maju Jaya Hasil Tani'),
+                      const SizedBox(height: 16),
                       const SizedBox(height: 16),
                       const Text('Total Pembayaran:',
                           style: TextStyle(

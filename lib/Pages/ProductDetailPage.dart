@@ -81,7 +81,7 @@ class ProductDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Rp. ${product.price}',
+              '${product.price}',
               style: TextStyle(
                 fontSize: isMobile ? 20 : 24,
                 color: Colors.green,

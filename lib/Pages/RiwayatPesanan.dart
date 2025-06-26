@@ -81,6 +81,8 @@ class RiwayatPesananPage extends StatelessWidget {
               final produk = data['produk'] ?? 'Nama Produk Tidak Ada';
               final jumlah = data['jumlah'] ?? 0;
               final total = data['total'] ?? 0;
+              final alamat =
+                  data['alamatPengiriman'] ?? 'Alamat tidak tersedia';
               final image = data['imageBase64'] ?? '🛒';
 
               return Card(
@@ -113,6 +115,9 @@ class RiwayatPesananPage extends StatelessWidget {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 8),
+                      Text('Alamat: $alamat',
+                          style: const TextStyle(fontSize: 13)),
                       const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -177,8 +182,6 @@ class RiwayatPesananPage extends StatelessWidget {
           onTap: (index) async {
             if (index == 0) {
               Navigator.pushReplacementNamed(context, 'homepage');
-            } else if (index == 1) {
-              // stay here
             } else if (index == 2) {
               await Navigator.pushNamed(context, '/profil_user');
             }
